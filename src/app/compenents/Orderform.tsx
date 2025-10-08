@@ -4,7 +4,7 @@
 import { useState } from "react";
 
 
-export default function OrderForm() {
+export default function OrderForm({ defaultProductId }: { defaultProductId?: string }) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -15,6 +15,7 @@ export default function OrderForm() {
     const form = e.currentTarget;
 
     // ✅ Safe typing for TypeScript
+    const productIdInput = form.elements.namedItem("productId") as HTMLInputElement | null;
     const nameInput = form.elements.namedItem("name") as HTMLInputElement;
     const emailInput = form.elements.namedItem("email") as HTMLInputElement;
     const numberInput = form.elements.namedItem(
@@ -25,6 +26,7 @@ export default function OrderForm() {
     ) as HTMLTextAreaElement;
 
     const data = {
+      productId: productIdInput?.value || "",
       name: nameInput.value,
       email: emailInput.value,
       number: numberInput.value,
@@ -77,6 +79,13 @@ export default function OrderForm() {
         onSubmit={handleSubmit}
         className="bg-white text-gray-600 p-6 rounded-xl shadow-md w-full max-w-md"
       >
+        <input
+          name="productId"
+          placeholder="Product ID"
+          value={defaultProductId ?? ""}
+          readOnly
+          className="w-full border p-3 rounded mb-3 bg-gray-50 text-gray-700"
+        />
         <input
           name="name"
           placeholder="Your name"

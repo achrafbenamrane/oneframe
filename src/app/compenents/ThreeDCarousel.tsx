@@ -35,9 +35,13 @@ interface CardProps {
   transform: string;
   cardW: number;
   cardH: number;
+  leftLabel?: string;
+  rightLabel?: string;
+  onLeftClick?: () => void;
+  onRightClick?: () => void;
 }
 
-const Card = ({ src, transform, cardW, cardH }: CardProps) => (
+const Card = ({ src, transform, cardW, cardH, leftLabel = 'Buy', rightLabel = 'Details', onLeftClick, onRightClick }: CardProps) => (
   <div
     className="absolute"
     style={{
@@ -52,7 +56,7 @@ const Card = ({ src, transform, cardW, cardH }: CardProps) => (
       className="w-full h-full rounded-2xl overflow-hidden bg-white dark:bg-gray-800
                  border border-gray-200 dark:border-gray-700 shadow-lg dark:shadow-gray-900/50
                  transition-transform duration-300 hover:scale-105 hover:shadow-2xl dark:hover:shadow-gray-900/70
-                 hover:z-10"
+                 hover:z-10 relative"
       style={{ backfaceVisibility: 'hidden' }}
     >
       <img
@@ -65,6 +69,26 @@ const Card = ({ src, transform, cardW, cardH }: CardProps) => (
         draggable={false}
         onError={(e) => (e.currentTarget.src = FALLBACK)}
       />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 p-2 flex justify-between gap-2">
+        <button
+          type="button"
+          className="pointer-events-auto px-3 py-1.5 text-xs font-medium rounded-md bg-cyan-600 text-white hover:bg-cyan-500 border border-cyan-500/50 shadow"
+          onMouseDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+          onClick={(e) => { e.stopPropagation(); onLeftClick && onLeftClick(); }}
+        >
+          {leftLabel}
+        </button>
+        <button
+          type="button"
+          className="pointer-events-auto px-3 py-1.5 text-xs font-medium rounded-md bg-black/70 text-white dark:bg-white/80 dark:text-gray-900 backdrop-blur border border-white/20 dark:border-black/20 shadow"
+          onMouseDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+          onClick={(e) => { e.stopPropagation(); onRightClick && onRightClick(); }}
+        >
+          {rightLabel}
+        </button>
+      </div>
     </div>
   </div>
 );
@@ -75,6 +99,10 @@ interface ThreeDCarouselProps {
   radius?: number;
   cardW?: number;
   cardH?: number;
+  leftButtonLabel?: string;
+  rightButtonLabel?: string;
+  onLeftButtonClick?: (index: number, src: string) => void;
+  onRightButtonClick?: (index: number, src: string) => void;
 }
 
 const ThreeDCarousel = ({
@@ -82,6 +110,10 @@ const ThreeDCarousel = ({
   radius = RADIUS,
   cardW = CARD_W,
   cardH = CARD_H,
+  leftButtonLabel = 'Info',
+  rightButtonLabel = 'Buy',
+  onLeftButtonClick,
+  onRightButtonClick,
 }: ThreeDCarouselProps) => {
   const parentRef = useRef<HTMLDivElement>(null);
   const wheelRef = useRef<HTMLDivElement>(null);
@@ -219,7 +251,17 @@ const ThreeDCarousel = ({
           }}
         >
           {cards.map((card) => (
-            <Card key={card.key} src={card.src} transform={card.transform} cardW={cardW} cardH={cardH} />
+            <Card
+              key={card.key}
+              src={card.src}
+              transform={card.transform}
+              cardW={cardW}
+              cardH={cardH}
+              leftLabel={leftButtonLabel}
+              rightLabel={rightButtonLabel}
+              onLeftClick={onLeftButtonClick ? () => onLeftButtonClick(card.key, card.src) : undefined}
+              onRightClick={onRightButtonClick ? () => onRightButtonClick(card.key, card.src) : undefined}
+            />
           ))}
         </div>
       </div>
