@@ -1,41 +1,53 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
+
 import { useState } from "react";
 
 export default function OrderForm() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setLoading(true);
+
     const form = e.currentTarget;
-  
+
+    // ✅ Safe typing for TypeScript
+    const nameInput = form.elements.namedItem("name") as HTMLInputElement;
+    const emailInput = form.elements.namedItem("email") as HTMLInputElement;
+    const messageInput = form.elements.namedItem("message") as HTMLTextAreaElement;
+
     const data = {
-      name: (form.elements.namedItem("name") as HTMLInputElement)?.value,
-      email: (form.elements.namedItem("email") as HTMLInputElement)?.value,
-      message: (form.elements.namedItem("message") as HTMLTextAreaElement)?.value,
+      name: nameInput.value,
+      email: emailInput.value,
+      message: messageInput.value,
     };
-  
-    console.log(data);
-  };
-    const res = await fetch("/api/send", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
+
+    try {
+      const res = await fetch("/api/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      setSuccess(res.ok);
+    } catch (err) {
+      console.error("Error sending order:", err);
+      setSuccess(false);
+    }
 
     setLoading(false);
-    setSuccess(res.ok);
     form.reset();
   }
 
   return (
-    <div className="flex flex-col  items-center">
+    <div className="flex flex-col items-center">
       <p className="text-gray-600 mb-6">Send us your order details below</p>
 
       <form
         onSubmit={handleSubmit}
-        className="bg-white  text-gray-600 p-6 rounded-xl shadow-md w-full max-w-md"
+        className="bg-white text-gray-600 p-6 rounded-xl shadow-md w-full max-w-md"
       >
         <input
           name="name"
@@ -50,7 +62,6 @@ export default function OrderForm() {
           type="email"
           className="w-full border p-3 rounded mb-3"
         />
-        <input type="" />
         <textarea
           name="message"
           placeholder="Your order details"
