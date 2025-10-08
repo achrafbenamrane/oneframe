@@ -22,7 +22,7 @@ export default function OrderForm() {
     const data = {
       name: nameInput.value,
       email: emailInput.value,
-      number: parseInt(numberInput.value),
+      number: numberInput.value,
       message: messageInput.value,
     };
 
