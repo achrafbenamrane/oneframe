@@ -6,17 +6,18 @@ export default function OrderForm() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
-
     const form = e.currentTarget;
+  
     const data = {
-      name: form.name.value,
-      email: form.email.value,
-      message: form.message.value,
+      name: (form.elements.namedItem("name") as HTMLInputElement)?.value,
+      email: (form.elements.namedItem("email") as HTMLInputElement)?.value,
+      message: (form.elements.namedItem("message") as HTMLTextAreaElement)?.value,
     };
-
+  
+    console.log(data);
+  };
     const res = await fetch("/api/send", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
