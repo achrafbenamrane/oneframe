@@ -16,11 +16,13 @@ export default function OrderForm() {
     // ✅ Safe typing for TypeScript
     const nameInput = form.elements.namedItem("name") as HTMLInputElement;
     const emailInput = form.elements.namedItem("email") as HTMLInputElement;
+    const numberInput = form.elements.namedItem("number") as HTMLTextAreaElement;
     const messageInput = form.elements.namedItem("message") as HTMLTextAreaElement;
 
     const data = {
       name: nameInput.value,
       email: emailInput.value,
+      number: parseInt(numberInput.value),
       message: messageInput.value,
     };
 
@@ -60,6 +62,15 @@ export default function OrderForm() {
           placeholder="Your email"
           required
           type="email"
+          className="w-full border p-3 rounded mb-3"
+        />
+          <input
+          name="number"
+          placeholder="Your phone number"
+          required
+          type="text"
+          inputMode="numeric"
+          maxLength={10}
           className="w-full border p-3 rounded mb-3"
         />
         <textarea
