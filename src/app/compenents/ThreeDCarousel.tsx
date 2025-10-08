@@ -10,12 +10,13 @@ const FALLBACK =
   ' text-anchor="middle" fill="%234a5568" font-size="18">Image</text></svg>';
 
 const DEFAULT_IMAGES: string[] = [
-  'https://i.pinimg.com/736x/9f/09/45/9f0945103fc6158cb16e1828a2665b5c.jpg',
-  'https://i.pinimg.com/1200x/6e/4c/39/6e4c394783c731f261f295e7ffd1deed.jpg',
-  'https://i.pinimg.com/1200x/1e/0c/1c/1e0c1c9c868bf07b4c27a275fb3087af.jpg',
-  'https://i.pinimg.com/736x/30/91/09/3091098a15810ddbbd58d5e007bc7207.jpg',
-  'https://i.pinimg.com/736x/07/cf/4a/07cf4a3a6f4144b4c7ac8e2ec5978dc1.jpg',
-  'https://i.pinimg.com/736x/5d/bf/f2/5dbff2b4c0fdcb9815e989f0db386f95.jpg',
+  '/van.png',
+  '/van.png',
+  '/van.png',
+  '/van.png',
+  '/van.png',
+  '/van.png',
+
 ];
 
 /* 2️⃣  Config ————————————————————————— */

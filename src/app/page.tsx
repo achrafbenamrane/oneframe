@@ -13,9 +13,10 @@ export default function Home() {
        <div className=" pb-4 rounded-xl">
         <img src="/logo.png" alt="Logo" width={180} height={105} />
       </div>
-      <h1 className="flex justify-center items-center text-3xl text-gray-600  font-bold mb-2">MakeOrder </h1>
-      <OrderForm/>
       <ThreeDCarousel/>
+      <h1 className="flex justify-center items-center text-3xl text-gray-600  font-bold mt-2 mb-2">MakeOrder </h1>
+      <OrderForm/>
+      
     </main>
   );
 }
