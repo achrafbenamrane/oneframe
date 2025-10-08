@@ -2,9 +2,11 @@
 "use client";
 
 import { useState } from "react";
+import { useI18n } from "./LanguageProvider";
 
 
 export default function OrderForm({ defaultProductId }: { defaultProductId?: string }) {
+  const { t } = useI18n();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -73,7 +75,7 @@ export default function OrderForm({ defaultProductId }: { defaultProductId?: str
 
   return (
     <div className="flex flex-col items-center">
-      <p className="text-gray-600 mb-6">Send us your order details below</p>
+      <p className="text-gray-600 mb-6">{t('sendOrderBelow')}</p>
 
       <form
         onSubmit={handleSubmit}
@@ -81,27 +83,27 @@ export default function OrderForm({ defaultProductId }: { defaultProductId?: str
       >
         <input
           name="productId"
-          placeholder="Product ID"
+          placeholder={t('productId')}
           value={defaultProductId ?? ""}
           readOnly
           className="w-full border p-3 rounded mb-3 bg-gray-50 text-gray-700"
         />
         <input
           name="name"
-          placeholder="Your name"
+          placeholder={t('name')}
           required
           className="w-full border p-3 rounded mb-3"
         />
         <input
           name="email"
-          placeholder="Your email"
+          placeholder={t('email')}
           required
           type="email"
           className="w-full border p-3 rounded mb-3"
         />
         <input
           name="number"
-          placeholder="Your phone number"
+          placeholder={t('number')}
           required
           type="text"
           inputMode="numeric"
@@ -110,7 +112,7 @@ export default function OrderForm({ defaultProductId }: { defaultProductId?: str
         />
         <textarea
           name="message"
-          placeholder="Your order details"
+          placeholder={t('message')}
           required
           className="w-full border p-3 rounded mb-3"
         />
@@ -132,14 +134,12 @@ export default function OrderForm({ defaultProductId }: { defaultProductId?: str
             />
 
             <span className="relative z-10 inline-flex items-center justify-center w-full h-full px-8 py-3 text-gray-900 dark:text-white bg-white dark:bg-gray-900 rounded-full group-hover:bg-gray-100 dark:group-hover:bg-gray-800 transition-colors duration-300">
-              {loading ? "Sending..." : "Buy Now"}
+              {loading ? t('sending') : t('buyNow')}
             </span>
           </button>
         </div>
         {success && (
-          <p className="text-green-600 mt-3 text-center">
-            ✅ Order sent successfully!
-          </p>
+          <p className="text-green-600 mt-3 text-center">✅ {t('orderSentSuccess')}</p>
         )}
       </form>
     </div>

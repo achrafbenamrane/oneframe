@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useI18n } from './LanguageProvider';
 
 interface ProductDetailsProps {
   id: string;
@@ -12,8 +13,9 @@ interface ProductDetailsProps {
 }
 
 const ProductDetails: React.FC<ProductDetailsProps> = ({ id, title, price, description, images = [], onBuy }) => {
+  const { t } = useI18n();
   return (
-    <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
+    <div className="w-full max-w-md sm:max-w-lg bg-white dark:bg-gray-900 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
       {/* Media/Carousel placeholder */}
       <div className="relative h-56 sm:h-64 bg-gray-200 dark:bg-gray-800">
         {images[0] ? (
@@ -27,7 +29,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ id, title, price, descr
         {/* Top-left badge */}
         <div className="absolute top-3 left-3">
           <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-black/60 text-white backdrop-blur">
-            Best Seller
+            {t('bestSeller')}
           </span>
         </div>
 
@@ -52,7 +54,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ id, title, price, descr
         <div className="flex items-start justify-between gap-3">
           <div>
             <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Own the Airforce</p>
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{t('ownIt')}</p>
           </div>
           <span className="sr-only">Product ID: {id}</span>
         </div>
@@ -63,13 +65,13 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ id, title, price, descr
 
         <div className="mt-4 flex items-center justify-between">
           <span className="px-3 py-1.5 rounded-full bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100 text-sm font-semibold border border-gray-200 dark:border-gray-700">
-            ${typeof price === 'number' ? price.toFixed(2) : price}
+            {t('priceSymbol')}{typeof price === 'number' ? price.toFixed(2) : price}
           </span>
           <button
             onClick={onBuy}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-black text-white hover:bg-gray-900 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 transition-colors shadow"
           >
-            Buy Now <span aria-hidden>↗</span>
+            {t('buyNow')} <span aria-hidden>↗</span>
           </button>
         </div>
       </div>

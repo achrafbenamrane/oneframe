@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect, useCallback, useMemo } from 'react';
+import { useRef, useEffect, useCallback, useMemo, useState } from 'react';
 
 /* 1️⃣  Assets ————————————————————————— */
 const FALLBACK =
@@ -118,6 +118,26 @@ const ThreeDCarousel = ({
   const parentRef = useRef<HTMLDivElement>(null);
   const wheelRef = useRef<HTMLDivElement>(null);
 
+  // Responsive dimensions based on viewport width
+  const [dims, setDims] = useState({ cardW, cardH, radius });
+  useEffect(() => {
+    const compute = () => {
+      const w = typeof window !== 'undefined' ? window.innerWidth : 1024;
+      if (w < 400) {
+        setDims({ cardW: 120, cardH: 160, radius: 180 });
+      } else if (w < 640) {
+        setDims({ cardW: 140, cardH: 190, radius: 200 });
+      } else if (w < 1024) {
+        setDims({ cardW: 160, cardH: 210, radius: 220 });
+      } else {
+        setDims({ cardW, cardH, radius });
+      };
+    };
+    compute();
+    window.addEventListener('resize', compute);
+    return () => window.removeEventListener('resize', compute);
+  }, [cardW, cardH, radius]);
+
   const rotationRef = useRef(0);
   const tiltRef = useRef(0);
   const targetTiltRef = useRef(0);
@@ -208,9 +228,9 @@ const ThreeDCarousel = ({
     () =>
       images.map((src, idx) => {
         const angle = (idx * 360) / images.length;
-        return { key: idx, src, transform: `rotateY(${angle}deg) translateZ(${radius}px)` };
+        return { key: idx, src, transform: `rotateY(${angle}deg) translateZ(${dims.radius}px)` };
       }),
-    [images, radius]
+    [images, dims.radius]
   );
 
   return (
@@ -231,23 +251,23 @@ const ThreeDCarousel = ({
         style={{
           perspective: 1500,
           perspectiveOrigin: 'center',
-          width: Math.max(cardW * 1.5, radius * 2.2),
-          height: Math.max(cardH * 1.8, radius * 1.5),
+          width: Math.max(dims.cardW * 1.5, dims.radius * 2.2),
+          height: Math.max(dims.cardH * 1.8, dims.radius * 1.5),
         }}
       >
         <div
           ref={wheelRef}
           className="relative"
           style={{
-            width: cardW,
-            height: cardH,
+            width: dims.cardW,
+            height: dims.cardH,
             transformStyle: 'preserve-3d',
             willChange: 'transform',
             position: 'absolute',
             left: '50%',
             top: '50%',
-            marginLeft: -cardW / 2,
-            marginTop: -cardH / 2,
+            marginLeft: -dims.cardW / 2,
+            marginTop: -dims.cardH / 2,
           }}
         >
           {cards.map((card) => (
@@ -255,8 +275,8 @@ const ThreeDCarousel = ({
               key={card.key}
               src={card.src}
               transform={card.transform}
-              cardW={cardW}
-              cardH={cardH}
+              cardW={dims.cardW}
+              cardH={dims.cardH}
               leftLabel={leftButtonLabel}
               rightLabel={rightButtonLabel}
               onLeftClick={onLeftButtonClick ? () => onLeftButtonClick(card.key, card.src) : undefined}
