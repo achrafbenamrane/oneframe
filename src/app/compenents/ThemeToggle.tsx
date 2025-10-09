@@ -3,40 +3,73 @@
 import React, { useEffect, useState } from 'react';
 
 const ThemeToggle: React.FC = () => {
-  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    if (typeof document === 'undefined') return 'light';
-    return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-  });
+  const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem('theme');
-    if (saved === 'dark' || saved === 'light') {
-      setTheme(saved);
-      document.documentElement.classList.toggle('dark', saved === 'dark');
+    // Check initial theme on mount
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    const shouldBeDark = savedTheme === 'dark' || (!savedTheme && prefersDark);
+    setIsDark(shouldBeDark);
+    
+    if (shouldBeDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
     }
   }, []);
 
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark');
-    localStorage.setItem('theme', theme);
-  }, [theme]);
-
-  const toggle = () => setTheme((p) => (p === 'light' ? 'dark' : 'light'));
+  const handleToggle = () => {
+    const newIsDark = !isDark;
+    setIsDark(newIsDark);
+    
+    if (newIsDark) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  };
 
   return (
     <button
-      aria-label="Toggle theme"
-      onClick={toggle}
-      className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+      onClick={handleToggle}
+      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 shadow-sm"
     >
-      {/* Sun/Moon icon */}
-      {theme === 'light' ? (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-yellow-500">
-          <path d="M12 18a6 6 0 110-12 6 6 0 010 12z" /><path fillRule="evenodd" d="M12 2a1 1 0 011 1v2a1 1 0 11-2 0V3a1 1 0 011-1zm0 16a1 1 0 011 1v2a1 1 0 11-2 0v-2a1 1 0 011-1zM4.222 4.222a1 1 0 011.414 0L7.05 5.636a1 1 0 01-1.414 1.414L4.222 5.636a1 1 0 010-1.414zM16.95 16.95a1 1 0 011.414 0l1.414 1.414a1 1 0 01-1.414 1.414L16.95 18.364a1 1 0 010-1.414zM2 12a1 1 0 011-1h2a1 1 0 110 2H3a1 1 0 01-1-1zm16 0a1 1 0 011-1h2a1 1 0 110 2h-2a1 1 0 01-1-1zM4.222 19.778a1 1 0 011.414 0L7.05 18.364a1 1 0 11-1.414-1.414L4.222 18.364a1 1 0 010 1.414zM16.95 7.05a1 1 0 011.414 0l1.414 1.414a1 1 0 11-1.414 1.414L16.95 8.464a1 1 0 010-1.414z" clipRule="evenodd" />
+      {isDark ? (
+        // Moon icon for dark mode
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={2}
+          stroke="currentColor"
+          className="w-5 h-5 text-gray-200"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"
+          />
         </svg>
       ) : (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-blue-200">
-          <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+        // Sun icon for light mode
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={2}
+          stroke="currentColor"
+          className="w-5 h-5 text-yellow-500"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"
+          />
         </svg>
       )}
     </button>

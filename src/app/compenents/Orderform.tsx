@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useI18n } from "./LanguageProvider";
 
 
@@ -9,6 +9,12 @@ export default function OrderForm({ defaultProductId }: { defaultProductId?: str
   const { t } = useI18n();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(defaultProductId || "");
+
+  // Update when defaultProductId changes
+  useEffect(() => {
+    if (defaultProductId) setSelectedProduct(defaultProductId);
+  }, [defaultProductId]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -17,7 +23,7 @@ export default function OrderForm({ defaultProductId }: { defaultProductId?: str
     const form = e.currentTarget;
 
     // ✅ Safe typing for TypeScript
-    const productIdInput = form.elements.namedItem("productId") as HTMLInputElement | null;
+    const productIdInput = form.elements.namedItem("productId") as HTMLSelectElement | null;
     const nameInput = form.elements.namedItem("name") as HTMLInputElement;
     const emailInput = form.elements.namedItem("email") as HTMLInputElement;
     const numberInput = form.elements.namedItem(
@@ -50,56 +56,61 @@ export default function OrderForm({ defaultProductId }: { defaultProductId?: str
 
     setLoading(false);
     form.reset();
+    setSelectedProduct("");
   }
   const customCss = `
-    /* This is the key to the seamless animation.
-      The @property rule tells the browser that '--angle' is a custom property
-      of type <angle>. This allows the browser to smoothly interpolate it
-      during animations, preventing the "jump" at the end of the loop.
-    */
-    @property --angle {
-      syntax: '<angle>';
-      initial-value: 0deg;
-      inherits: false;
+    /* Cross-browser spinner animation: rotate the layer instead of animating a custom property.
+       This works in Chrome, Safari, Firefox, and mobile browsers. */
+    @keyframes shimmer-rotate {
+      to { transform: rotate(360deg); }
     }
 
-    /* The keyframe animation simply transitions the --angle property
-      from its start (0deg) to its end (360deg).
-    */
-    @keyframes shimmer-spin {
-      to {
-        --angle: 360deg;
-      }
+    /* Utility class for the animated layer */
+    .shimmer-anim { animation: shimmer-rotate 2.3s linear infinite; will-change: transform; }
+
+    /* Respect reduced motion preferences */
+    @media (prefers-reduced-motion: reduce) {
+      .shimmer-anim { animation: none !important; }
     }
   `;
 
   return (
-    <div className="flex flex-col items-center">
-      <p className="text-gray-600 mb-6">{t('sendOrderBelow')}</p>
+    <div className="flex flex-col items-center w-full">
+      <p className="text-gray-600 dark:text-gray-300 mb-6">{t('sendOrderBelow')}</p>
 
       <form
         onSubmit={handleSubmit}
-        className="bg-white text-gray-600 p-6 rounded-xl shadow-md w-full max-w-md"
+        className="bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-200 p-6 rounded-xl shadow-md w-full max-w-md"
       >
-        <input
+        {/* Product Selection Dropdown */}
+        <select
           name="productId"
-          placeholder={t('productId')}
-          value={defaultProductId ?? ""}
-          readOnly
-          className="w-full border p-3 rounded mb-3 bg-gray-50 text-gray-700"
-        />
+          value={selectedProduct}
+          onChange={(e) => setSelectedProduct(e.target.value)}
+          required
+          className="w-full border border-gray-200 dark:border-gray-700 p-3 rounded mb-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 cursor-pointer focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+        >
+          <option value="" disabled>Select Vehicle Type</option>
+          <option value="van">Van</option>
+          <option value="camaro">Camaro</option>
+          <option value="land rover">Land Rover</option>
+          <option value="bike">Bike</option>
+          <option value="f1">F1</option>
+          <option value="mercedes gtr">Mercedes GTR</option>
+        </select>
+
         <input
           name="name"
           placeholder={t('name')}
           required
-          className="w-full border p-3 rounded mb-3"
+          className="w-full border border-gray-200 dark:border-gray-700 p-3 rounded mb-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
         />
         <input
           name="email"
           placeholder={t('email')}
           required
           type="email"
-          className="w-full border p-3 rounded mb-3"
+          className="w-full border border-gray-200 dark:border-gray-700 p-3 rounded mb-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
         />
         <input
           name="number"
@@ -108,13 +119,13 @@ export default function OrderForm({ defaultProductId }: { defaultProductId?: str
           type="text"
           inputMode="numeric"
           maxLength={10}
-          className="w-full border p-3 rounded mb-3"
+          className="w-full border border-gray-200 dark:border-gray-700 p-3 rounded mb-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
         />
         <textarea
           name="message"
           placeholder={t('message')}
           required
-          className="w-full border p-3 rounded mb-3"
+          className="w-full border border-gray-200 dark:border-gray-700 p-3 rounded mb-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-cyan-500 focus:border-transparent min-h-[100px]"
         />
 
         <div className="flex items-center justify-center font-sans">
@@ -122,14 +133,14 @@ export default function OrderForm({ defaultProductId }: { defaultProductId?: str
           <button
             type="submit"
             disabled={loading}
-            className="relative inline-flex items-center justify-center min-w-full p-[1.5px] bg-gray-300 dark:bg-black rounded-full overflow-hidden group"
+            className="relative inline-flex items-center justify-center min-w-full p-[6px] bg-gray-300 dark:bg-black rounded-full overflow-hidden group"
           >
             <div
-              className="absolute inset-0"
+              className="absolute inset-0 shimmer-anim"
               style={{
                 background:
-                  "conic-gradient(from var(--angle), transparent 25%, #06b6d4, transparent 50%)",
-                animation: "shimmer-spin 2.3s linear infinite",
+                  "conic-gradient(from 0deg, transparent 25%, #06b6d4, transparent 50%)",
+                pointerEvents: "none",
               }}
             />
 
@@ -139,7 +150,7 @@ export default function OrderForm({ defaultProductId }: { defaultProductId?: str
           </button>
         </div>
         {success && (
-          <p className="text-green-600 mt-3 text-center">✅ {t('orderSentSuccess')}</p>
+          <p className="text-green-600 dark:text-green-400 mt-3 text-center">✅ {t('orderSentSuccess')}</p>
         )}
       </form>
     </div>

@@ -6,8 +6,8 @@ import LanguageToggle from './LanguageToggle';
 
 const TopBar: React.FC = () => {
   return (
-    <header className="w-full py-3">
-      <div className="max-w-5xl mx-auto px-3 sm:px-4">
+    <header className="sticky top-0 z-50 w-full py-3 bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95">
+      <div className="max-w-5xl mx-auto px-3 sm:px-4 w-full">
         <div className="relative flex items-center justify-center">
           {/* Left: Theme */}
           <div className="absolute left-0">
