@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import ThemeToggle from './ThemeToggle';
 import LanguageToggle from './LanguageToggle';
 
@@ -16,7 +17,7 @@ const TopBar: React.FC = () => {
 
           {/* Center: Logo */}
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="Logo" className="select-none w-28 h-auto sm:w-36" />
+            <Image src="/logo.png" alt="Logo" width={144} height={40} priority className="select-none w-28 h-auto sm:w-36" />
           </div>
 
           {/* Right: Language */}

@@ -40,7 +40,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
       }
       style={{ backfaceVisibility: 'hidden', transformStyle: 'preserve-3d' }}
     >
-      <div className="relative w-full h-56 sm:h-64 md:h-72 lg:h-80">
+      <div className="relative w-full h-72 sm:h-80 md:h-96 lg:h-[28rem]">
         <Image
           src={image}
           alt={title}
@@ -52,16 +52,16 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
       </div>
 
-      <div className="p-4 sm:p-6">
-        <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 text-center">
+      <div className="p-5 sm:p-6">
+        <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2 text-center">
           {title}
         </h3>
-        <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-300 mb-4 text-center">
+        <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-4 text-center">
           {description}
         </p>
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-5">
-          <span className="text-2xl sm:text-3xl font-bold text-blue-600 dark:text-blue-400 text-center sm:text-left">
+          <span className="text-3xl sm:text-4xl font-bold text-blue-600 dark:text-blue-400 text-center sm:text-left">
             ${price.toLocaleString()}
           </span>
           <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full self-center sm:self-auto">
@@ -70,10 +70,10 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3">
-          <Button onClick={() => onBuy?.(id)} variant="primary" className="sm:flex-[2]">
+          <Button onClick={() => onBuy?.(id)} variant="primary" className="text-base py-3 sm:flex-[2]">
             Buy Now
           </Button>
-          <Button onClick={() => onDetails?.(id)} variant="secondary" className="sm:flex-[1]">
+          <Button onClick={() => onDetails?.(id)} variant="secondary" className="text-base py-3 sm:flex-[1]">
             Details
           </Button>
         </div>

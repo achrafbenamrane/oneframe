@@ -85,7 +85,7 @@ const ResponsiveCarousel: React.FC<ResponsiveCarouselProps> = ({ vehicles, onBuy
   }, [current, vehicles.length, isMobile]);
 
   return (
-    <div className="w-full min-h-screen flex flex-col items-center justify-center py-8 px-4 sm:px-6 lg:px-8">
+    <div className="w-full min-h-screen flex flex-col items-center justify-center py-8 px-4 sm:px-6 lg:px-8 mx-auto">
       <div
         className="relative w-full max-w-6xl mx-auto flex items-center justify-center"
         style={{ perspective: 1200 }}
@@ -104,7 +104,7 @@ const ResponsiveCarousel: React.FC<ResponsiveCarouselProps> = ({ vehicles, onBuy
         )}
 
         {/* Cards Stage */}
-        <div className="relative flex-1 flex items-center justify-center h-[520px] sm:h-[560px] md:h-[600px]" onWheel={handleWheel}>
+        <div className="relative flex-1 flex items-center justify-center h-[520px] sm:h-[560px] md:h-[600px] px-2 sm:px-4" onWheel={handleWheel}>
           <AnimatePresence initial={false} mode="wait">
             {vehicles.map((vehicle, idx) => {
               if (!visibleIndexes.includes(idx)) return null;
@@ -132,7 +132,7 @@ const ResponsiveCarousel: React.FC<ResponsiveCarouselProps> = ({ vehicles, onBuy
                   exit={{ opacity: 0, x: pos === -1 ? -120 : pos === 1 ? 120 : 0, scale: 0.9 }}
                   transition={{ type: 'spring', stiffness: 220, damping: 26, mass: 0.8 }}
                   className={`absolute w-full flex items-center justify-center ${isActive ? 'pointer-events-auto' : 'pointer-events-none'}`}
-                  style={{ transformStyle: 'preserve-3d' }}
+                  style={{ transformStyle: 'preserve-3d', backfaceVisibility: 'hidden' }}
                 >
                   <motion.div
                     drag="x"
@@ -144,7 +144,7 @@ const ResponsiveCarousel: React.FC<ResponsiveCarouselProps> = ({ vehicles, onBuy
                       else if (info.offset.x > 80) handlePrev();
                     }}
                     style={isActive ? { x: dragX, rotateY, scale: scaleActive, boxShadow: shadowActive } : {}}
-                    className={`w-full ${isActive ? 'max-w-[94%] sm:max-w-[76%] md:max-w-[60%] lg:max-w-[52%]' : 'max-w-[60%] sm:max-w-[44%] md:max-w-[34%] lg:max-w-[30%]'} ${!isActive ? 'opacity-70 brightness-95 grayscale-[20%] blur-[0.5px] sm:blur-[1px]' : ''}`}
+                    className={`w-full ${isActive ? 'max-w-[98%] sm:max-w-[76%] md:max-w-[60%] lg:max-w-[52%]' : 'max-w-[60%] sm:max-w-[44%] md:max-w-[34%] lg:max-w-[30%]'} ${!isActive ? 'opacity-70 brightness-95 grayscale-[20%] blur-[0.5px] sm:blur-[1px]' : ''}`}
                   >
                     <VehicleCard
                       {...vehicle}
