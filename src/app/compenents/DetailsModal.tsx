@@ -23,7 +23,7 @@ const DetailsModal = ({ open, onClose, title = 'Details', children }: DetailsMod
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full sm:max-w-lg sm:rounded-2xl bg-white dark:bg-gray-900 shadow-xl border border-white/20 dark:border-gray-700 p-4 sm:p-6 m-0 sm:m-4">
+      <div className="relative w-full   sm:max-w-lg sm:rounded-2xl  shadow-xl border border-white/20 dark:border-gray-700 p-4 sm:p-20 m-0 sm:m-20">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
           <button

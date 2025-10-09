@@ -15,6 +15,8 @@ export default function Home() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState<{ index: number; src: string } | null>(null);
   const [selectedProductId, setSelectedProductId] = useState<string>("");
+  // Map carousel index to the OrderForm select values
+  const VEHICLE_IDS = ['van', 'camaro', 'land rover', 'bike', 'f1', 'mercedes gtr'] as const;
 
   const openDetails = useCallback((index: number, src: string) => {
     setModalContent({ index, src });
@@ -34,14 +36,14 @@ export default function Home() {
   }, [scrollToOrder]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-gray-950">
+    <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-950">
       <TopBar />
 
       <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 pt-24">
         <ThreeDCarousel
           leftButtonLabel={t('buy')}
           rightButtonLabel={t('details')}
-          onLeftButtonClick={(i) => setAndScroll(String(i + 1))}
+          onLeftButtonClick={(i) => setAndScroll(VEHICLE_IDS[i])}
           onRightButtonClick={(i, src) => openDetails(i, src)}
         />
 
@@ -60,7 +62,7 @@ export default function Home() {
               images={[modalContent.src]}
               onBuy={() => {
                 setModalOpen(false);
-                setAndScroll(String(modalContent.index + 1));
+                setAndScroll(VEHICLE_IDS[modalContent.index]);
               }}
             />
           )}

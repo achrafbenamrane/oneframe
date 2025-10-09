@@ -15,9 +15,9 @@ interface ProductDetailsProps {
 const ProductDetails: React.FC<ProductDetailsProps> = ({ id, title, price, description, images = [], onBuy }) => {
   const { t } = useI18n();
   return (
-    <div className="w-full max-w-md sm:max-w-lg bg-white dark:bg-gray-900 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
+    <div className="w-full max-w-md sm:max-w-lg  bg-white dark:bg-gray-900 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
       {/* Media/Carousel placeholder */}
-      <div className="relative h-56 sm:h-64 bg-gray-200 dark:bg-gray-800">
+      <div className="relative h-56 sm:h-3/4 bg-gray-200 dark:bg-gray-800">
         {images[0] ? (
           <img src={images[0]} alt={title} className="w-full h-full object-cover" />
         ) : (
@@ -50,7 +50,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ id, title, price, descr
       </div>
 
       {/* Content */}
-      <div className="p-4 sm:p-5">
+      <div className="p-4 sm:p-5 h-1/4">
         <div className="flex items-start justify-between gap-3">
           <div>
             <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
