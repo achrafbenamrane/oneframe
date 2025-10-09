@@ -28,8 +28,8 @@ const CarouselCard: React.FC<CarouselCardProps> = ({
   isVisible = true,
 }) => {
   // Adapt callbacks to VehicleCard API; ignore the id parameter from VehicleCard
-  const handleBuy = (_: string) => onBuy?.();
-  const handleDetails = (_: string) => onDetails?.();
+  const handleBuy = () => onBuy?.();
+  const handleDetails = () => onDetails?.();
 
   return (
     <VehicleCard
