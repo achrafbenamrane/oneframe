@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { useI18n } from './LanguageProvider';
 
 interface ProductDetailsProps {
@@ -19,7 +20,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ id, title, price, descr
       {/* Media/Carousel placeholder */}
       <div className="relative h-56 sm:h-3/4 bg-gray-200 dark:bg-gray-800">
         {images[0] ? (
-          <img src={images[0]} alt={title} className="w-full h-full object-cover" />
+          <Image src={images[0]} alt={title} className="w-full h-full object-cover" fill priority={false} sizes="100vw" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-500 dark:text-gray-400 text-sm">
             Carousel placeholder

@@ -16,11 +16,13 @@ const PRICE_MAP: Record<string, number> = {
 
 const WILAYAS = [
   { value: "", labelEn: "Wilaya", labelAr: "الولاية" },
-  ...Object.entries(wilayasData).map(([key, w]: any) => ({ value: key, labelEn: w.en, labelAr: w.ar }))
+  ...Object.entries(wilayasData).map(([key, w]: [string, { en: string; ar: string; communes: { id: string; en: string; ar: string }[] }]) => ({ value: key, labelEn: w.en, labelAr: w.ar }))
 ];
 
-const ALL_COMMUNES: Record<string, { value: string; labelEn: string; labelAr: string }[]> = Object.entries(wilayasData).reduce((acc: any, [key, w]: any) => {
-  acc[key] = [{ value: "", labelEn: "Commune", labelAr: "البلدية" }, ...w.communes.map((c: any) => ({ value: c.id, labelEn: c.en, labelAr: c.ar }))];
+type Commune = { id: string; en: string; ar: string };
+type Wilaya = { en: string; ar: string; communes: Commune[] };
+const ALL_COMMUNES: Record<string, { value: string; labelEn: string; labelAr: string }[]> = Object.entries(wilayasData).reduce((acc: Record<string, { value: string; labelEn: string; labelAr: string }[]>, [key, w]: [string, Wilaya]) => {
+  acc[key] = [{ value: "", labelEn: "Commune", labelAr: "البلدية" }, ...w.communes.map((c: Commune) => ({ value: c.id, labelEn: c.en, labelAr: c.ar }))];
   return acc;
 }, {} as Record<string, { value: string; labelEn: string; labelAr: string }[]>);
 

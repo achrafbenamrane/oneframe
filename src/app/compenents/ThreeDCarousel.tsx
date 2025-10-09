@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useEffect, useCallback, useMemo, useState } from 'react';
+import Image from 'next/image';
 
 /* 1️⃣  Assets ————————————————————————— */
 const FALLBACK =
@@ -59,7 +60,7 @@ const Card = ({ src, transform, cardW, cardH, leftLabel = 'Buy', rightLabel = 'D
                  hover:z-10 relative"
       style={{ backfaceVisibility: 'hidden' }}
     >
-      <img
+      <Image
         src={src}
         alt="Carousel item"
         width={cardW}
@@ -67,7 +68,7 @@ const Card = ({ src, transform, cardW, cardH, leftLabel = 'Buy', rightLabel = 'D
         className="w-full h-full object-cover"
         loading="lazy"
         draggable={false}
-        onError={(e) => (e.currentTarget.src = FALLBACK)}
+        onError={() => {}}
       />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 p-2 flex justify-between gap-2">
         <button
@@ -75,7 +76,7 @@ const Card = ({ src, transform, cardW, cardH, leftLabel = 'Buy', rightLabel = 'D
           className="pointer-events-auto px-3 py-1.5 text-xs font-medium rounded-md bg-cyan-600 text-white hover:bg-cyan-500 border border-cyan-500/50 shadow"
           onMouseDown={(e) => e.stopPropagation()}
           onTouchStart={(e) => e.stopPropagation()}
-          onClick={(e) => { e.stopPropagation(); onLeftClick && onLeftClick(); }}
+          onClick={(e) => { e.stopPropagation(); if (onLeftClick) { onLeftClick(); } }}
         >
           {leftLabel}
         </button>
@@ -84,7 +85,7 @@ const Card = ({ src, transform, cardW, cardH, leftLabel = 'Buy', rightLabel = 'D
           className="pointer-events-auto px-3 py-1.5 text-xs font-medium rounded-md bg-black/70 text-white dark:bg-white/80 dark:text-gray-900 backdrop-blur border border-white/20 dark:border-black/20 shadow"
           onMouseDown={(e) => e.stopPropagation()}
           onTouchStart={(e) => e.stopPropagation()}
-          onClick={(e) => { e.stopPropagation(); onRightClick && onRightClick(); }}
+          onClick={(e) => { e.stopPropagation(); if (onRightClick) { onRightClick(); } }}
         >
           {rightLabel}
         </button>
