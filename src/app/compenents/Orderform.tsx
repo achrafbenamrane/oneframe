@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useI18n } from "./LanguageProvider";
+import wilayasData from "../data/wilayas.json";
 
 // Simple price map in DZD to match the form's currency
 const PRICE_MAP: Record<string, number> = {
@@ -15,17 +16,13 @@ const PRICE_MAP: Record<string, number> = {
 
 const WILAYAS = [
   { value: "", labelEn: "Wilaya", labelAr: "الولاية" },
-  { value: "algiers", labelEn: "Algiers", labelAr: "الجزائر" },
-  { value: "oran", labelEn: "Oran", labelAr: "وهران" },
-  { value: "blida", labelEn: "Blida", labelAr: "البليدة" },
+  ...Object.entries(wilayasData).map(([key, w]: any) => ({ value: key, labelEn: w.en, labelAr: w.ar }))
 ];
 
-const COMMUNES = [
-  { value: "", labelEn: "Commune", labelAr: "البلدية" },
-  { value: "center", labelEn: "Center", labelAr: "المركز" },
-  { value: "east", labelEn: "East", labelAr: "الشرق" },
-  { value: "west", labelEn: "West", labelAr: "الغرب" },
-];
+const ALL_COMMUNES: Record<string, { value: string; labelEn: string; labelAr: string }[]> = Object.entries(wilayasData).reduce((acc: any, [key, w]: any) => {
+  acc[key] = [{ value: "", labelEn: "Commune", labelAr: "البلدية" }, ...w.communes.map((c: any) => ({ value: c.id, labelEn: c.en, labelAr: c.ar }))];
+  return acc;
+}, {} as Record<string, { value: string; labelEn: string; labelAr: string }[]>);
 
 const VEHICLES = [
   { value: 'van', labelEn: 'Van', labelAr: 'فان' },
@@ -56,6 +53,10 @@ export default function OrderForm({ defaultProductId }: { defaultProductId?: str
   const [phone, setPhone] = useState("");
   const [wilaya, setWilaya] = useState("");
   const [commune, setCommune] = useState("");
+  const communesForWilaya = useMemo(() => {
+    if (!wilaya) return [{ value: "", labelEn: "Commune", labelAr: "البلدية" }];
+    return ALL_COMMUNES[wilaya] || [{ value: "", labelEn: "Commune", labelAr: "البلدية" }];
+  }, [wilaya]);
 
   // Update when defaultProductId changes
   useEffect(() => {
@@ -255,7 +256,7 @@ export default function OrderForm({ defaultProductId }: { defaultProductId?: str
             required
             className={`${inputBase} appearance-none ${isRTL ? 'text-right' : 'text-left'}`}
           >
-            {COMMUNES.map((c) => (
+            {communesForWilaya.map((c) => (
               <option key={c.value} value={c.value}>
                 {lang === 'ar' ? c.labelAr : c.labelEn}
               </option>

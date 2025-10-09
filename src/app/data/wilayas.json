@@ -1,0 +1,29 @@
+{
+  "algiers": {
+    "en": "Algiers",
+    "ar": "الجزائر",
+    "communes": [
+      { "id": "center", "en": "Center", "ar": "المركز" },
+      { "id": "bab-el-ouzouar", "en": "Bab Ezzouar", "ar": "باب الزوار" },
+      { "id": "el-harrach", "en": "El Harrach", "ar": "الحراش" }
+    ]
+  },
+  "oran": {
+    "en": "Oran",
+    "ar": "وهران",
+    "communes": [
+      { "id": "oran-center", "en": "Oran Center", "ar": "وسط وهران" },
+      { "id": "bir-el-djir", "en": "Bir El Djir", "ar": "بئر الجير" },
+      { "id": "es-senia", "en": "Es Senia", "ar": "السانية" }
+    ]
+  },
+  "blida": {
+    "en": "Blida",
+    "ar": "البليدة",
+    "communes": [
+      { "id": "blida-center", "en": "Blida Center", "ar": "وسط البليدة" },
+      { "id": "boufarik", "en": "Boufarik", "ar": "بوفاريك" },
+      { "id": "oued-el-alleug", "en": "Oued El Alleug", "ar": "وادي العلايق" }
+    ]
+  }
+}

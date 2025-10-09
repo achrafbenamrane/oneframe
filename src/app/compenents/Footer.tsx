@@ -4,7 +4,7 @@ import React from 'react';
 import { useI18n } from './LanguageProvider';
 
 const Footer: React.FC = () => {
-  const { t } = useI18n();
+  const { t, lang, toggleLang } = useI18n();
 
   return (
     <footer className="w-full bg-gray-300 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 py-8 mt-auto">
@@ -60,11 +60,19 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        {/* Copyright */}
-        <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-800 text-center">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+        {/* Copyright + Language Switch */}
+        <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-800 flex flex-col items-center gap-3">
+          <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
             © {new Date().getFullYear()} OneFrame. All rights reserved.
           </p>
+          <button
+            onClick={toggleLang}
+            className="px-4 py-2 text-sm rounded-full bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 hover:bg-cyan-600 hover:text-white dark:hover:bg-cyan-600 transition"
+            aria-label="Toggle language"
+            type="button"
+          >
+            {lang === 'ar' ? 'English' : 'العربية'}
+          </button>
         </div>
       </div>
     </footer>
