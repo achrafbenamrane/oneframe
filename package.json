@@ -6,9 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-     "lint": "next lint"
+    "lint": "next lint"
   },
   "dependencies": {
+    "framer-motion": "^12.23.22",
     "next": "15.5.4",
     "nodemailer": "^7.0.9",
     "postcss": "^8.5.6",
