@@ -2,13 +2,14 @@
 
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-type Lang = 'en' | 'ar';
+export type Lang = 'en' | 'ar';
 
-type Dict = Record<string, { en: string; ar: string }>;
+type Dict = Record<string, { en: string; ar: string }>; 
 
 const dict: Dict = {
-  makeOrderTitle: { en: 'MakeOrder', ar: 'اتمم الطلب' },
-  sendOrderBelow: { en: 'Send us your order details below', ar: 'أرسل لنا تفاصيل طلبك أدناه' },
+  // General
+  makeOrderTitle: { en: 'Complete your order', ar: 'اتمم الطلب' },
+  sendOrderBelow: { en: 'Fill the full information to place your order', ar: 'املأ المعلومات كاملة للطلب' },
   productId: { en: 'Product ID', ar: 'معرّف المنتج' },
   name: { en: 'Your name', ar: 'اسمك' },
   email: { en: 'Your email', ar: 'بريدك الإلكتروني' },
@@ -28,6 +29,22 @@ const dict: Dict = {
     en: 'Step back into classic hoops style with a durable leather. Best for casual wear, comfort and timeless look.',
     ar: 'عُد إلى أسلوب السلة الكلاسيكي بجلد متين. مثالي للارتداء اليومي والراحة والمظهر الخالد.'
   },
+
+  // Order form specific
+  formHeader: { en: 'Fill the complete information for the order', ar: 'املأ المعلومات كاملة للطلب' },
+  nameLabel: { en: 'Full name', ar: 'الاسم واللقب' },
+  namePlaceholder: { en: 'Enter your full name here', ar: 'أدخل اسمك ولقبك هنا' },
+  phoneLabel: { en: 'Phone number', ar: 'رقم الهاتف' },
+  phonePlaceholder: { en: 'Enter your phone number here', ar: 'أدخل رقم هاتفك هنا' },
+  wilayaLabel: { en: 'Wilaya', ar: 'الولاية' },
+  communeLabel: { en: 'Commune', ar: 'البلدية' },
+  productPriceLabel: { en: 'Product price', ar: 'سعر المنتج' },
+  deliveryPriceLabel: { en: 'Delivery price', ar: 'سعر التوصيل' },
+  totalPriceLabel: { en: 'Total price', ar: 'السعر الإجمالي' },
+  confirmOrder: { en: 'Confirm order', ar: 'تأكيد الطلب' },
+  vehicleLabel: { en: 'Vehicle', ar: 'نوع المركبة' },
+  vehiclePlaceholder: { en: 'Selected vehicle', ar: 'نوع المركبة المختار' },
+  selectVehicleFirst: { en: 'Please select a vehicle first.', ar: 'يرجى اختيار نوع المركبة أولاً.' },
 };
 
 interface LanguageContextValue {
@@ -49,14 +66,10 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (typeof document !== 'undefined') {
-      // Preserve existing classes (like 'dark') and only change dir
       const html = document.documentElement;
       const currentDir = html.getAttribute('dir');
       const newDir = lang === 'ar' ? 'rtl' : 'ltr';
-      
-      if (currentDir !== newDir) {
-        html.setAttribute('dir', newDir);
-      }
+      if (currentDir !== newDir) html.setAttribute('dir', newDir);
       localStorage.setItem('lang', lang);
     }
   }, [lang]);
