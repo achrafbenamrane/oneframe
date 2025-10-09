@@ -97,3 +97,5 @@ const CarouselCard: React.FC<CarouselCardProps> = ({
 };
 
 export default CarouselCard;
+
+

@@ -49,7 +49,14 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (typeof document !== 'undefined') {
-      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      // Preserve existing classes (like 'dark') and only change dir
+      const html = document.documentElement;
+      const currentDir = html.getAttribute('dir');
+      const newDir = lang === 'ar' ? 'rtl' : 'ltr';
+      
+      if (currentDir !== newDir) {
+        html.setAttribute('dir', newDir);
+      }
       localStorage.setItem('lang', lang);
     }
   }, [lang]);
