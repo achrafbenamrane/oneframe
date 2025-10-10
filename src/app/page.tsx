@@ -9,8 +9,17 @@ import TopBar from "./compenents/TopBar";
 import Footer from "./compenents/Footer";
 import { useI18n } from "./compenents/LanguageProvider";
 
+// Define the valid translation keys
+type TranslationKey = 
+  | 'van' | 'camaro' | 'landRover' | 'bike' | 'f1' | 'mercedesGTR'
+  | 'vanDescription' | 'camaroDescription' | 'landRoverDescription' 
+  | 'bikeDescription' | 'f1Description' | 'mercedesGTRDescription'
+  | 'details' | 'productTitle' | 'productDescription'
+  | 'makeOrderTitle' | 'buy' | 'buyNow' | 'orderNow' | 'exploreVehicles' | 'dragToBrowse'
+  | 'bestSeller' | 'ownIt' | 'priceSymbol';
+
 export default function Home() {
-  const { t, lang } = useI18n();
+  const { t } = useI18n(); // Removed unused 'lang'
   const [modalOpen, setModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState<{ index: number; src: string } | null>(null);
   const [selectedProductId, setSelectedProductId] = useState<string>("");
@@ -18,53 +27,53 @@ export default function Home() {
   // Map carousel index to the OrderForm select values
   const VEHICLE_IDS = ['van', 'camaro', 'land rover', 'bike', 'f1', 'mercedes gtr'] as const;
 
-  // Vehicle-specific data with proper names, prices, and images - USING YOUR ACTUAL FILES
+  // Vehicle-specific data with proper names, prices, and images
   const VEHICLE_DATA = [
     { 
       id: 'van', 
-      nameKey: 'van',
+      nameKey: 'van' as TranslationKey,
       price: 2500, 
-      descriptionKey: 'vanDescription',
+      descriptionKey: 'vanDescription' as TranslationKey,
       image: '/Van.jpg'
     },
     { 
       id: 'camaro', 
-      nameKey: 'camaro',
+      nameKey: 'camaro' as TranslationKey,
       price: 3200, 
-      descriptionKey: 'camaroDescription',
+      descriptionKey: 'camaroDescription' as TranslationKey,
       image: '/Camaro.jpg'
     },
     { 
       id: 'land rover', 
-      nameKey: 'landRover',
+      nameKey: 'landRover' as TranslationKey,
       price: 2800, 
-      descriptionKey: 'landRoverDescription',
+      descriptionKey: 'landRoverDescription' as TranslationKey,
       image: '/Brezina.jpg'
     },
     { 
       id: 'bike', 
-      nameKey: 'bike',
+      nameKey: 'bike' as TranslationKey,
       price: 1800, 
-      descriptionKey: 'bikeDescription',
+      descriptionKey: 'bikeDescription' as TranslationKey,
       image: '/Bike.jpg'
     },
     { 
       id: 'f1', 
-      nameKey: 'f1',
+      nameKey: 'f1' as TranslationKey,
       price: 15000, 
-      descriptionKey: 'f1Description',
+      descriptionKey: 'f1Description' as TranslationKey,
       image: '/f1.jpg'
     },
     { 
       id: 'mercedes gtr', 
-      nameKey: 'mercedesGTR',
+      nameKey: 'mercedesGTR' as TranslationKey,
       price: 4500, 
-      descriptionKey: 'mercedesGTRDescription',
+      descriptionKey: 'mercedesGTRDescription' as TranslationKey,
       image: '/Mercedes.jpg'
     },
   ];
 
-  // Carousel images - USING YOUR ACTUAL IMAGE FILES
+  // Carousel images
   const CAROUSEL_IMAGES = [
     '/Van.jpg',
     '/Camaro.jpg',
@@ -109,14 +118,14 @@ export default function Home() {
           <OrderForm defaultProductId={selectedProductId} />
         </section>
 
-        <DetailsModal open={modalOpen} onClose={closeDetails} title={modalContent ? `${t('details')} - ${t(VEHICLE_DATA[modalContent.index]?.nameKey as any)}` : t('details')}>
+        <DetailsModal open={modalOpen} onClose={closeDetails} title={modalContent ? `${t('details')} - ${t(VEHICLE_DATA[modalContent.index]?.nameKey)}` : t('details')}>
           {modalContent && (
             <ProductDetails
               id={VEHICLE_IDS[modalContent.index]}
-              title={t(VEHICLE_DATA[modalContent.index]?.nameKey as any) || t('productTitle')}
+              title={t(VEHICLE_DATA[modalContent.index]?.nameKey) || t('productTitle')}
               price={VEHICLE_DATA[modalContent.index]?.price || 111}
-              description={t(VEHICLE_DATA[modalContent.index]?.descriptionKey as any) || t('productDescription')}
-              images={[VEHICLE_DATA[modalContent.index]?.image]} // FIXED: Use the specific vehicle image
+              description={t(VEHICLE_DATA[modalContent.index]?.descriptionKey) || t('productDescription')}
+              images={[VEHICLE_DATA[modalContent.index]?.image]}
               onBuy={() => {
                 setModalOpen(false);
                 setAndScroll(VEHICLE_IDS[modalContent.index]);
