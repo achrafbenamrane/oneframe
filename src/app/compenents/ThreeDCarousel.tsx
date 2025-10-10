@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { useI18n } from "./LanguageProvider";
 
 interface ThreeDCarouselProps {
   images?: string[];
@@ -11,14 +12,25 @@ interface ThreeDCarouselProps {
   onRightButtonClick?: (index: number, src: string) => void;
 }
 
+// Remove the DEFAULT_IMAGES or update it to use your actual images
 const DEFAULT_IMAGES: string[] = [
-  '/van.png',
-  '/van.png', 
-  '/van.png',
-  '/van.png',
-  '/van.png',
-  '/van.png',
+  '/Van.jpg',
+  '/Camaro.jpg', 
+  '/Brezina.jpg',
+  '/Bike.jpg',
+  '/f1.jpg',
+  '/Mercedes.jpg',
 ];
+
+// Vehicle names mapping - use the same keys as in your dictionary
+const VEHICLE_NAMES = [
+  'van',
+  'camaro', 
+  'landRover',
+  'bike',
+  'f1',
+  'mercedesGTR'
+] as const;
 
 interface Story {
   id: number;
@@ -82,7 +94,7 @@ const StoryCard = ({
 };
 
 const ThreeDCarousel = ({
-  images = DEFAULT_IMAGES,
+  images = DEFAULT_IMAGES, // This will use the passed images or fallback to DEFAULT_IMAGES
   leftButtonLabel = 'Info',
   rightButtonLabel = 'Buy',
   onLeftButtonClick,
@@ -91,12 +103,13 @@ const ThreeDCarousel = ({
   const trackRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragConstraint, setDragConstraint] = useState(0);
+  const { t } = useI18n();
 
-  // Convert your images to stories data
+  // Convert your images to stories data with proper translated names
   const storiesData: Story[] = images.map((imageUrl, index) => ({
     id: index + 1,
-    imageUrl: imageUrl,
-    title: `Vehicle ${index + 1}`,
+    imageUrl: imageUrl, // This will use the actual image from the prop
+    title: t(VEHICLE_NAMES[index]),
   }));
 
   useEffect(() => {
@@ -119,10 +132,10 @@ const ThreeDCarousel = ({
       <div className="w-full max-w-7xl mx-auto px-4">
         <header className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-black dark:text-white">
-            Explore Our Vehicles
+            {t('exploreVehicles')}
           </h1>
           <p className="mt-4 text-lg text-gray-400">
-            Drag to browse through our collection.
+            {t('dragToBrowse')}
           </p>
         </header>
 
@@ -163,7 +176,7 @@ const ThreeDCarousel = ({
               document.getElementById('order-form-section')?.scrollIntoView({ behavior: 'smooth' });
             }}
           >
-            Order Now
+            {t('orderNow')}
             <span className="inline-block transition-transform duration-300 group-hover:translate-x-1 ml-1">
               &rarr;
             </span>

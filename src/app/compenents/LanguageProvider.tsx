@@ -45,6 +45,45 @@ const dict: Dict = {
   vehicleLabel: { en: 'Vehicle', ar: 'نوع المركبة' },
   vehiclePlaceholder: { en: 'Selected vehicle', ar: 'نوع المركبة المختار' },
   selectVehicleFirst: { en: 'Please select a vehicle first.', ar: 'يرجى اختيار نوع المركبة أولاً.' },
+
+  // NEW: Carousel specific translations
+  exploreVehicles: { en: 'Explore Our Vehicles', ar: 'استكشف مركباتنا' },
+  dragToBrowse: { en: 'Drag to browse through our collection', ar: 'اسحب لتصفح مجموعتنا' },
+  orderNow: { en: 'Order Now', ar: 'اطلب الآن' },
+  
+  // NEW: Specific vehicle names
+  van: { en: 'Van', ar: 'فان' },
+  camaro: { en: 'Camaro', ar: 'كامارو' },
+  landRover: { en: 'Land Rover', ar: 'لاند روفر' },
+  bike: { en: 'Bike', ar: 'دراجة' },
+  f1: { en: 'F1', ar: 'فورمولا 1' },
+  mercedesGTR: { en: 'Mercedes GTR', ar: 'مرسيدس جي تي آر' },
+
+  // NEW: Vehicle descriptions
+  vanDescription: { 
+    en: 'Spacious and reliable van perfect for commercial use and large families. Great for transportation and delivery services.', 
+    ar: 'فان واسع وموثوق مثالي للاستخدام التجاري والعائلات الكبيرة. رائع لخدمات النقل والتوصيل.' 
+  },
+  camaroDescription: { 
+    en: 'Sporty and powerful muscle car with exceptional performance and sleek design. Perfect for car enthusiasts.', 
+    ar: 'سيارة عضلية رياضية وقوية بأداء استثنائي وتصميم أنيق. مثالية لعشاق السيارات.' 
+  },
+  landRoverDescription: { 
+    en: 'Luxurious SUV with superior off-road capabilities and premium comfort. Ideal for adventure and family trips.', 
+    ar: 'سيارة دفع رباعي فاخرة بإمكانيات متطورة خارج الطرق وراحة فائقة. مثالية للمغامرات والرحلات العائلية.' 
+  },
+  bikeDescription: { 
+    en: 'High-performance motorcycle with excellent fuel efficiency and agile handling. Great for urban commuting.', 
+    ar: 'دراجة نارية عالية الأداء بكفاءة وقود ممتازة وتوجيه رشيق. رائعة للتنقل الحضري.' 
+  },
+  f1Description: { 
+    en: 'Racing car with cutting-edge technology and unparalleled performance. Built for speed and precision.', 
+    ar: 'سيارة سباق بتقنية متطورة وأداء لا مثيل له. مصممة للسرعة والدقة.' 
+  },
+  mercedesGTRDescription: { 
+    en: 'High-performance sports car with luxury features and track-ready capabilities. The ultimate driving machine.', 
+    ar: 'سيارة رياضية عالية الأداء بميزات فاخرة وإمكانيات جاهزة للمسار. آلة القيادة المثالية.' 
+  },
 };
 
 interface LanguageContextValue {
