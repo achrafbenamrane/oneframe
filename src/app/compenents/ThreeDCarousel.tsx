@@ -1,289 +1,173 @@
 'use client';
+import React, { useState, useRef, useEffect } from "react";
+import { motion } from "framer-motion";
+import Image from "next/image";
 
-import { useRef, useEffect, useCallback, useMemo, useState } from 'react';
-import Image from 'next/image';
-
-/* 1️⃣  Assets ————————————————————————— */
-const FALLBACK =
-  'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" ' +
-  'width="160" height="220"><rect width="100%" height="100%" ' +
-  'fill="%23e2e8f0"/><text x="50%" y="50%" dominant-baseline="middle"' +
-  ' text-anchor="middle" fill="%234a5568" font-size="18">Image</text></svg>';
-
-const DEFAULT_IMAGES: string[] = [
-  '/van.png',
-  '/van.png',
-  '/van.png',
-  '/van.png',
-  '/van.png',
-  '/van.png',
-
-];
-
-/* 2️⃣  Config ————————————————————————— */
-const CARD_W = 180;
-const CARD_H = 240;
-const RADIUS = 240;
-const TILT_SENSITIVITY = 10;
-const DRAG_SENSITIVITY = 0.5;
-const INERTIA_FRICTION = 0.95;
-const AUTOSPIN_SPEED = 0.08;
-const IDLE_TIMEOUT = 2000;
-
-/* 3️⃣  Card Component ————————————————————————— */
-interface CardProps {
-  src: string;
-  transform: string;
-  cardW: number;
-  cardH: number;
-  leftLabel?: string;
-  rightLabel?: string;
-  onLeftClick?: () => void;
-  onRightClick?: () => void;
-}
-
-const Card = ({ src, transform, cardW, cardH, leftLabel = 'Buy', rightLabel = 'Details', onLeftClick, onRightClick }: CardProps) => (
-  <div
-    className="absolute"
-    style={{
-      width: cardW,
-      height: cardH,
-      transform,
-      transformStyle: 'preserve-3d',
-      willChange: 'transform',
-    }}
-  >
-    <div
-      className="w-full h-full rounded-2xl overflow-hidden bg-white dark:bg-gray-800
-                 border border-gray-200 dark:border-gray-700 shadow-lg dark:shadow-gray-900/50
-                 transition-transform duration-300 hover:scale-105 hover:shadow-2xl dark:hover:shadow-gray-900/70
-                 hover:z-10 relative"
-      style={{ backfaceVisibility: 'hidden' }}
-    >
-      <Image
-        src={src}
-        alt="Carousel item"
-        width={cardW}
-        height={cardH}
-        className="w-full h-full object-cover"
-        loading="lazy"
-        draggable={false}
-        onError={() => {}}
-      />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 p-2 flex justify-between gap-2">
-        <button
-          type="button"
-          className="pointer-events-auto px-3 py-1.5 text-xs font-medium rounded-md bg-cyan-600 text-white hover:bg-cyan-500 border border-cyan-500/50 shadow"
-          onMouseDown={(e) => e.stopPropagation()}
-          onTouchStart={(e) => e.stopPropagation()}
-          onClick={(e) => { e.stopPropagation(); if (onLeftClick) { onLeftClick(); } }}
-        >
-          {leftLabel}
-        </button>
-        <button
-          type="button"
-          className="pointer-events-auto px-3 py-1.5 text-xs font-medium rounded-md bg-black/70 text-white dark:bg-white/80 dark:text-gray-900 backdrop-blur border border-white/20 dark:border-black/20 shadow"
-          onMouseDown={(e) => e.stopPropagation()}
-          onTouchStart={(e) => e.stopPropagation()}
-          onClick={(e) => { e.stopPropagation(); if (onRightClick) { onRightClick(); } }}
-        >
-          {rightLabel}
-        </button>
-      </div>
-    </div>
-  </div>
-);
-
-/* 4️⃣  Main Component ————————————————————————— */
 interface ThreeDCarouselProps {
   images?: string[];
-  radius?: number;
-  cardW?: number;
-  cardH?: number;
   leftButtonLabel?: string;
   rightButtonLabel?: string;
   onLeftButtonClick?: (index: number, src: string) => void;
   onRightButtonClick?: (index: number, src: string) => void;
 }
 
+const DEFAULT_IMAGES: string[] = [
+  '/van.png',
+  '/van.png', 
+  '/van.png',
+  '/van.png',
+  '/van.png',
+  '/van.png',
+];
+
+interface Story {
+  id: number;
+  imageUrl: string;
+  title: string;
+}
+
+const StoryCard = ({ 
+  story, 
+  leftLabel, 
+  rightLabel, 
+  onLeftClick, 
+  onRightClick 
+}: { 
+  story: Story;
+  leftLabel?: string;
+  rightLabel?: string;
+  onLeftClick?: () => void;
+  onRightClick?: () => void;
+}) => {
+  return (
+    <motion.div
+      className="relative w-72 h-96 flex-shrink-0 rounded-lg overflow-hidden shadow-xl group"
+      whileHover={{ y: -8, transition: { type: "spring", stiffness: 300 } }}
+    >
+      <Image
+        src={story.imageUrl}
+        alt={story.title}
+        width={288}
+        height={384}
+        className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 pointer-events-none"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+      <div className="relative z-10 flex flex-col justify-end h-full p-6 text-white">
+        <h3 className="font-bold text-2xl tracking-wide">{story.title}</h3>
+        
+        {/* Buttons - matching your existing functionality */}
+        <div className="pointer-events-none mt-4 flex justify-between gap-2">
+          <button
+            type="button"
+            className="pointer-events-auto px-3 py-1.5 text-xs font-medium rounded-md bg-cyan-600 text-white hover:bg-cyan-500 border border-cyan-500/50 shadow"
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); if (onLeftClick) { onLeftClick(); } }}
+          >
+            {leftLabel}
+          </button>
+          <button
+            type="button"
+            className="pointer-events-auto px-3 py-1.5 text-xs font-medium rounded-md bg-black/70 text-white dark:bg-white/80 dark:text-gray-900 backdrop-blur border border-white/20 dark:border-black/20 shadow"
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); if (onRightClick) { onRightClick(); } }}
+          >
+            {rightLabel}
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
 const ThreeDCarousel = ({
   images = DEFAULT_IMAGES,
-  radius = RADIUS,
-  cardW = CARD_W,
-  cardH = CARD_H,
   leftButtonLabel = 'Info',
   rightButtonLabel = 'Buy',
   onLeftButtonClick,
   onRightButtonClick,
 }: ThreeDCarouselProps) => {
-  const parentRef = useRef<HTMLDivElement>(null);
-  const wheelRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [dragConstraint, setDragConstraint] = useState(0);
 
-  // Responsive dimensions based on viewport width
-  const [dims, setDims] = useState({ cardW, cardH, radius });
+  // Convert your images to stories data
+  const storiesData: Story[] = images.map((imageUrl, index) => ({
+    id: index + 1,
+    imageUrl: imageUrl,
+    title: `Vehicle ${index + 1}`,
+  }));
+
   useEffect(() => {
-    const compute = () => {
-      const w = typeof window !== 'undefined' ? window.innerWidth : 1024;
-      if (w < 400) {
-        setDims({ cardW: 120, cardH: 160, radius: 180 });
-      } else if (w < 640) {
-        setDims({ cardW: 140, cardH: 190, radius: 200 });
-      } else if (w < 1024) {
-        setDims({ cardW: 160, cardH: 210, radius: 220 });
-      } else {
-        setDims({ cardW, cardH, radius });
-      };
-    };
-    compute();
-    window.addEventListener('resize', compute);
-    return () => window.removeEventListener('resize', compute);
-  }, [cardW, cardH, radius]);
-
-  const rotationRef = useRef(0);
-  const tiltRef = useRef(0);
-  const targetTiltRef = useRef(0);
-  const velocityRef = useRef(0);
-  const isDraggingRef = useRef(false);
-  const dragStartRef = useRef(0);
-  const initialRotationRef = useRef(0);
-  const lastInteractionRef = useRef(Date.now());
-  const animationFrameRef = useRef<number | null>(null);
-
-  /* Mouse tilt effect */
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!parentRef.current || isDraggingRef.current) return;
-
-      lastInteractionRef.current = Date.now();
-      const parentRect = parentRef.current.getBoundingClientRect();
-      const mouseY = e.clientY - parentRect.top;
-      const normalizedY = (mouseY / parentRect.height - 0.5) * 2;
-
-      targetTiltRef.current = -normalizedY * TILT_SENSITIVITY;
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-
-  /* Animation loop */
-  useEffect(() => {
-    const animate = () => {
-      if (!isDraggingRef.current) {
-        if (Math.abs(velocityRef.current) > 0.01) {
-          rotationRef.current += velocityRef.current;
-          velocityRef.current *= INERTIA_FRICTION;
-        } else if (Date.now() - lastInteractionRef.current > IDLE_TIMEOUT) {
-          rotationRef.current += AUTOSPIN_SPEED;
-        }
+    const calculateConstraints = () => {
+      if (containerRef.current && trackRef.current) {
+        const containerWidth = containerRef.current.offsetWidth;
+        const trackWidth = trackRef.current.scrollWidth;
+        setDragConstraint(containerWidth - trackWidth);
       }
-
-      tiltRef.current += (targetTiltRef.current - tiltRef.current) * 0.1;
-
-      if (wheelRef.current) {
-        wheelRef.current.style.transform = `rotateX(${tiltRef.current}deg) rotateY(${rotationRef.current}deg)`;
-      }
-
-      animationFrameRef.current = requestAnimationFrame(animate);
     };
 
-    animationFrameRef.current = requestAnimationFrame(animate);
-    return () => {
-      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-    };
-  }, []);
+    calculateConstraints();
+    window.addEventListener("resize", calculateConstraints);
 
-  /* Drag handlers */
-  const handleDragStart = useCallback((clientX: number) => {
-    lastInteractionRef.current = Date.now();
-    isDraggingRef.current = true;
-    velocityRef.current = 0;
-    dragStartRef.current = clientX;
-    initialRotationRef.current = rotationRef.current;
-  }, []);
-
-  const handleDragMove = useCallback((clientX: number) => {
-    if (!isDraggingRef.current) return;
-    lastInteractionRef.current = Date.now();
-
-    const deltaX = clientX - dragStartRef.current;
-    const newRotation = initialRotationRef.current + deltaX * DRAG_SENSITIVITY;
-
-    velocityRef.current = newRotation - rotationRef.current;
-    rotationRef.current = newRotation;
-  }, []);
-
-  const handleDragEnd = useCallback(() => {
-    isDraggingRef.current = false;
-    lastInteractionRef.current = Date.now();
-  }, []);
-
-  /* Mouse & touch events */
-  const onMouseDown = (e: React.MouseEvent) => handleDragStart(e.clientX);
-  const onMouseMove = (e: React.MouseEvent) => handleDragMove(e.clientX);
-  const onTouchStart = (e: React.TouchEvent) => handleDragStart(e.touches[0].clientX);
-  const onTouchMove = (e: React.TouchEvent) => handleDragMove(e.touches[0].clientX);
-
-  /* Cards transforms */
-  const cards = useMemo(
-    () =>
-      images.map((src, idx) => {
-        const angle = (idx * 360) / images.length;
-        return { key: idx, src, transform: `rotateY(${angle}deg) translateZ(${dims.radius}px)` };
-      }),
-    [images, dims.radius]
-  );
+    return () => window.removeEventListener("resize", calculateConstraints);
+  }, [images]);
 
   return (
-    <div
-      ref={parentRef}
-      className="w-full h-full flex items-center justify-center overflow-hidden font-sans cursor-grab active:cursor-grabbing"
-      style={{ userSelect: 'none' }}
-      onMouseDown={onMouseDown}
-      onMouseMove={onMouseMove}
-      onMouseUp={handleDragEnd}
-      onMouseLeave={handleDragEnd}
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={handleDragEnd}
-    >
-      <div
-        className="relative"
-        style={{
-          perspective: 1500,
-          perspectiveOrigin: 'center',
-          width: Math.max(dims.cardW * 1.5, dims.radius * 2.2),
-          height: Math.max(dims.cardH * 1.8, dims.radius * 1.5),
-        }}
-      >
-        <div
-          ref={wheelRef}
-          className="relative"
-          style={{
-            width: dims.cardW,
-            height: dims.cardH,
-            transformStyle: 'preserve-3d',
-            willChange: 'transform',
-            position: 'absolute',
-            left: '50%',
-            top: '50%',
-            marginLeft: -dims.cardW / 2,
-            marginTop: -dims.cardH / 2,
-          }}
+    <div className="font-sans w-full py-12 md:py-20 flex flex-col items-center justify-center">
+      <div className="w-full max-w-7xl mx-auto px-4">
+        <header className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-bold text-black dark:text-white">
+            Explore Our Vehicles
+          </h1>
+          <p className="mt-4 text-lg text-gray-400">
+            Drag to browse through our collection.
+          </p>
+        </header>
+
+        <motion.div
+          ref={containerRef}
+          className="overflow-hidden cursor-grab"
+          whileTap={{ cursor: "grabbing" }}
         >
-          {cards.map((card) => (
-            <Card
-              key={card.key}
-              src={card.src}
-              transform={card.transform}
-              cardW={dims.cardW}
-              cardH={dims.cardH}
-              leftLabel={leftButtonLabel}
-              rightLabel={rightButtonLabel}
-              onLeftClick={onLeftButtonClick ? () => onLeftButtonClick(card.key, card.src) : undefined}
-              onRightClick={onRightButtonClick ? () => onRightButtonClick(card.key, card.src) : undefined}
-            />
-          ))}
+          <motion.div
+            ref={trackRef}
+            className="flex space-x-6 pb-6 px-4"
+            drag="x"
+            dragConstraints={{
+              right: 0,
+              left: dragConstraint - 32,
+            }}
+            dragElastic={0.15}
+          >
+            {storiesData.map((story) => (
+              <StoryCard 
+                key={story.id} 
+                story={story}
+                leftLabel={leftButtonLabel}
+                rightLabel={rightButtonLabel}
+                onLeftClick={onLeftButtonClick ? () => onLeftButtonClick(story.id - 1, story.imageUrl) : undefined}
+                onRightClick={onRightButtonClick ? () => onRightButtonClick(story.id - 1, story.imageUrl) : undefined}
+              />
+            ))}
+          </motion.div>
+        </motion.div>
+
+        <div className="mt-10 flex items-center justify-center">
+          <a
+            href="#order-form-section"
+            className="text-gray-300 font-semibold hover:text-white transition-colors duration-300 group"
+            onClick={(e) => {
+              e.preventDefault();
+              document.getElementById('order-form-section')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+          >
+            Order Now
+            <span className="inline-block transition-transform duration-300 group-hover:translate-x-1 ml-1">
+              &rarr;
+            </span>
+          </a>
         </div>
       </div>
     </div>
