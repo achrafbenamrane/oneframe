@@ -130,6 +130,7 @@ export default function Home() {
                 setModalOpen(false);
                 setAndScroll(VEHICLE_IDS[modalContent.index]);
               }}
+              onClose={closeDetails}
             />
           )}
         </DetailsModal>
