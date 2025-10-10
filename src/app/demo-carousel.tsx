@@ -9,7 +9,7 @@ import { VEHICLE_TYPES } from './constants/vehicles';
 const vehicles: VehicleCardProps[] = VEHICLE_TYPES.map((v) => ({
   id: v.id, // e.g., 'van', 'camaro'
   title: v.label, // Display name
-  image: '/van.png', // placeholder for all, swap with real images per id when available
+  images: ['/van.png'], // CHANGED: Use images array instead of image
   description:
     'High-performance, precision-built frame engineered for safety and control. Designed for all terrains and use cases.',
   price:
