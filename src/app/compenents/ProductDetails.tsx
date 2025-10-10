@@ -18,6 +18,7 @@ interface ProductDetailsProps {
 const ProductDetails: React.FC<ProductDetailsProps> = ({ id, title, price, description, images = [], onBuy, onClose }) => {
   const { t } = useI18n();
   const [visible, setVisible] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const handleClose = () => {
     if (onClose) {
@@ -29,28 +30,55 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ id, title, price, descr
 
   if (!visible) return null;
 
+  // Carousel navigation handlers
+  const showPrev = () => setCurrentIndex((prev) => (prev === 0 ? (images.length - 1) : prev - 1));
+  const showNext = () => setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+
   // Center the card on any screen size
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4">
       <div className="w-full max-w-md sm:max-w-lg bg-white dark:bg-gray-900 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
-        {/* Media/Carousel - FIXED: Better image handling */}
-        <div className="relative h-74 sm:h-96 bg-gray-200 dark:bg-gray-800">
-          {images && images.length > 0 && images[0] ? (
-            <div className="relative w-full h-full">
+        {/* Media/Carousel - now with multiple images */}
+        <div className="relative h-74 sm:h-96 bg-gray-200 dark:bg-gray-800 flex items-center justify-center group">
+          {images && images.length > 0 && images[currentIndex] ? (
+            <div className="relative w-full h-full flex items-center justify-center">
+              {/* Left arrow - only show on hover (desktop) or always on mobile */}
+              {images.length > 1 && (
+                <button
+                  className="absolute left-2 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-900 rounded-full p-2 sm:p-3 shadow text-2xl sm:text-3xl opacity-80 hover:opacity-100 transition group-hover:opacity-100 focus:opacity-100"
+                  onClick={showPrev}
+                  aria-label="Previous image"
+                  type="button"
+                  style={{display: 'block'}}
+                >
+                  &#8592;
+                </button>
+              )}
               <Image 
-                src={images[0]} 
+                src={images[currentIndex]} 
                 alt={title}
                 width={400}
                 height={900}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-all duration-300 rounded-2xl"
                 priority
                 onError={(e) => {
-                  console.error('Image failed to load:', images[0]);
+                  console.error('Image failed to load:', images[currentIndex]);
                   const target = e.target as HTMLImageElement;
                   target.style.display = 'none';
                 }}
-                onLoad={() => console.log('Image loaded successfully:', images[0])}
               />
+              {/* Right arrow - only show on hover (desktop) or always on mobile */}
+              {images.length > 1 && (
+                <button
+                  className="absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-900 rounded-full p-2 sm:p-3 shadow text-2xl sm:text-3xl opacity-80 hover:opacity-100 transition group-hover:opacity-100 focus:opacity-100"
+                  onClick={showNext}
+                  aria-label="Next image"
+                  type="button"
+                  style={{display: 'block'}}
+                >
+                  &#8594;
+                </button>
+              )}
             </div>
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 text-sm">
@@ -78,13 +106,13 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ id, title, price, descr
             </button>
           </div>
 
-          {/* Dots indicator placeholder - only show if multiple images */}
+          {/* Dots indicator - show for multiple images, highlight current */}
           {images && images.length > 1 && (
             <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10">
               {images.map((_, index) => (
-                <span 
+                <span
                   key={index}
-                  className={`w-1.5 h-1.5 rounded-full ${index === 0 ? 'bg-white/70' : 'bg-white/50'}`} 
+                  className={`w-2 h-2 rounded-full border border-white/70 ${index === currentIndex ? 'bg-white/90' : 'bg-white/40'}`}
                 />
               ))}
             </div>

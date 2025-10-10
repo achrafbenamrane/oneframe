@@ -7,7 +7,7 @@ import CarouselCard from './CarouselCard';
 export interface Product {
   id: string;
   title: string;
-  image: string;
+  images: string[];
   description: string;
   price: number;
 }
@@ -83,7 +83,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({
             <CarouselCard
               id={products[currentIndex].id}
               title={products[currentIndex].title}
-              image={products[currentIndex].image}
+              images={products[currentIndex].images}
               description={products[currentIndex].description}
               price={products[currentIndex].price}
               onBuy={() => onBuy?.(products[currentIndex])}

@@ -6,10 +6,9 @@ import VehicleCard from './VehicleCard';
 interface CarouselCardProps {
   id: string;
   title: string;
-  image: string;
+  images: string[];
   description: string;
   price: number;
-  // ProductCarousel passes no-arg handlers; we adapt them to VehicleCard's signature internally
   onBuy?: () => void;
   onDetails?: () => void;
   isVisible?: boolean;
@@ -20,7 +19,7 @@ interface CarouselCardProps {
 const CarouselCard: React.FC<CarouselCardProps> = ({
   id,
   title,
-  image,
+  images,
   description,
   price,
   onBuy,
@@ -35,7 +34,7 @@ const CarouselCard: React.FC<CarouselCardProps> = ({
     <VehicleCard
       id={id}
       title={title}
-      image={image}
+      images={images}
       description={description}
       price={price}
       onBuy={handleBuy}

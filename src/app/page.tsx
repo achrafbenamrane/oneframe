@@ -27,6 +27,9 @@ export default function Home() {
   // Map carousel index to the OrderForm select values
   const VEHICLE_IDS = ['van', 'camaro', 'land rover', 'bike', 'f1', 'mercedes gtr'] as const;
 
+  // Folder names (match the folders created in public/)
+  const VEHICLE_FOLDERS = ['van', 'camaro', 'land-rover', 'bike', 'f1', 'mercedes-gtr'] as const;
+
   // Vehicle-specific data with proper names, prices, and images
   const VEHICLE_DATA = [
     { 
@@ -125,7 +128,10 @@ export default function Home() {
               title={t(VEHICLE_DATA[modalContent.index]?.nameKey) || t('productTitle')}
               price={VEHICLE_DATA[modalContent.index]?.price || 111}
               description={t(VEHICLE_DATA[modalContent.index]?.descriptionKey) || t('productDescription')}
-              images={[VEHICLE_DATA[modalContent.index]?.image]}
+              images={(() => {
+                const folder = VEHICLE_FOLDERS[modalContent.index] || '';
+                return [`/${folder}/1.jpg`, `/${folder}/2.jpg`, `/${folder}/3.jpg`, `/${folder}/4.jpg`];
+              })()}
               onBuy={() => {
                 setModalOpen(false);
                 setAndScroll(VEHICLE_IDS[modalContent.index]);

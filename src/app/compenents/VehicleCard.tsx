@@ -8,7 +8,7 @@ import Button from './Button';
 export interface VehicleCardProps {
   id: string; // stable id (e.g., 'van', 'camaro')
   title: string; // display name
-  image: string; // public path
+  images: string[]; // array of image paths
   description: string;
   price: number;
   onBuy?: (id: string) => void;
@@ -19,13 +19,15 @@ export interface VehicleCardProps {
 const VehicleCard: React.FC<VehicleCardProps> = ({
   id,
   title,
-  image,
+  images,
   description,
   price,
   onBuy,
   onDetails,
   isActive = false,
 }) => {
+  // Only use the first image for the carousel card preview
+  const image = images && images.length > 0 ? images[0] : '';
   return (
     <motion.div
       layout
