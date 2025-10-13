@@ -9,6 +9,7 @@ import TopBar from "./compenents/TopBar";
 import Footer from "./compenents/Footer";
 import { useI18n } from "./compenents/LanguageProvider";
 
+
 // Define the valid translation keys
 type TranslationKey = 
   | 'van' | 'camaro' | 'landRover' | 'bike' | 'f1' | 'mercedesGTR'
@@ -108,6 +109,8 @@ export default function Home() {
       <TopBar />
 
       <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 pt-24">
+        
+        <div className=""></div> 
         <ThreeDCarousel
           images={CAROUSEL_IMAGES}
           leftButtonLabel={t('buy')}

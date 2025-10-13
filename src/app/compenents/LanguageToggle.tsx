@@ -3,6 +3,7 @@
 import React from 'react';
 import { useI18n } from './LanguageProvider';
 
+
 const LanguageToggle: React.FC = () => {
   const { lang, toggleLang } = useI18n();
   const isAr = lang === 'ar';

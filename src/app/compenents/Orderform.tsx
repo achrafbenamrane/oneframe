@@ -14,9 +14,15 @@ const PRICE_MAP: Record<string, number> = {
   "mercedes gtr": 4500,
 };
 
+// Ensure wilayas are ordered as in the JSON file (by code)
 const WILAYAS = [
   { value: "", labelEn: "Wilaya", labelAr: "الولاية" },
-  ...Object.entries(wilayasData).map(([key, w]: [string, { en: string; ar: string; communes: { id: string; en: string; ar: string }[] }]) => ({ value: key, labelEn: w.en, labelAr: w.ar }))
+  ...Object.keys(wilayasData)
+    .sort((a, b) => Number(a) - Number(b))
+    .map((key) => {
+      const w = wilayasData[key];
+      return { value: key, labelEn: w.en, labelAr: w.ar };
+    })
 ];
 
 type Commune = { id: string; en: string; ar: string };

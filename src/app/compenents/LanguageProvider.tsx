@@ -47,14 +47,14 @@ const dict: Dict = {
   selectVehicleFirst: { en: 'Please select a vehicle first.', ar: 'يرجى اختيار نوع المركبة أولاً.' },
 
   // NEW: Carousel specific translations
-  exploreVehicles: { en: 'Explore Our Vehicles', ar: 'استكشف مركباتنا' },
-  dragToBrowse: { en: 'Drag to browse through our collection', ar: 'اسحب لتصفح مجموعتنا' },
+  exploreVehicles: { en: 'OneFrame for One Algerian Owner', ar: ' '},
+  dragToBrowse: { en: 'When u buy One of OneFrame products you gonna be the One algerian , the One owner and the Only  One  who have this product ', ar: 'اسحب لتصفح مجموعتنا' },
   orderNow: { en: 'Order Now', ar: 'اطلب الآن' },
   
   // NEW: Specific vehicle names
-  van: { en: 'Van', ar: 'فان' },
-  camaro: { en: 'Camaro', ar: 'كامارو' },
-  landRover: { en: 'Land Rover', ar: 'لاند روفر' },
+  van: { en: 'VanLife', ar: 'فان' },
+  camaro: { en: 'Camaro ZL1', ar: 'كامارو' },
+  landRover: { en: 'Algerian Arizona', ar: 'أريزونا الجزائر'},
   bike: { en: 'Bike', ar: 'دراجة' },
   f1: { en: 'F1', ar: 'فورمولا 1' },
   mercedesGTR: { en: 'Mercedes GTR', ar: 'مرسيدس جي تي آر' },
