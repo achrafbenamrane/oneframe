@@ -105,7 +105,7 @@ export default function Home() {
   }, [scrollToOrder]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-950">
+    <div className="min-h-screen flex flex-col bg-white  dark:bg-[url(/bggg.jpeg)]">
       <TopBar />
 
       <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 pt-24">
