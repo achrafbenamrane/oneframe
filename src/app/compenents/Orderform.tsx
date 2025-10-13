@@ -20,7 +20,7 @@ const WILAYAS = [
   ...Object.keys(wilayasData)
     .sort((a, b) => Number(a) - Number(b))
     .map((key) => {
-      const w = wilayasData[key];
+      const w = wilayasData[key as keyof typeof wilayasData];
       return { value: key, labelEn: w.en, labelAr: w.ar };
     })
 ];
