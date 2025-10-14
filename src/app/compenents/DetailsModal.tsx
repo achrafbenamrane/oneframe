@@ -9,7 +9,7 @@ interface DetailsModalProps {
   children?: ReactNode;
 }
 
-const DetailsModal = ({ open, onClose, title = 'Details', children }: DetailsModalProps) => {
+const DetailsModal = ({ open, onClose, children }: DetailsModalProps) => {
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {

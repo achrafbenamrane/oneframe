@@ -305,9 +305,9 @@ const ThreeDCarousel = ({
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
           // Add mouse drag support for desktop touch devices
-          onMouseDown={handleTouchStart as any}
-          onMouseMove={handleTouchMove as any}
-          onMouseUp={handleTouchEnd as any}
+          onMouseDown={(e: React.MouseEvent) => handleTouchStart(e as unknown as TouchEvent)}
+          onMouseMove={(e: React.MouseEvent) => handleTouchMove(e as unknown as TouchEvent)}
+          onMouseUp={(e: React.MouseEvent) => handleTouchEnd(e as unknown as TouchEvent)}
           onMouseLeave={handleTouchEnd} // Handle case when mouse leaves during drag
         >
           {/* Cards Container */}
