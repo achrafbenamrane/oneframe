@@ -7,6 +7,7 @@ import DetailsModal from "./compenents/DetailsModal";
 import ProductDetails from "./compenents/ProductDetails";
 import TopBar from "./compenents/TopBar";
 import Footer from "./compenents/Footer";
+import Newsletter from "./compenents/Newsletter";
 import { useI18n } from "./compenents/LanguageProvider";
 
 
@@ -144,6 +145,9 @@ export default function Home() {
           )}
         </DetailsModal>
       </main>
+
+      {/* Newsletter Section */}
+      <Newsletter />
 
       <Footer />
     </div>
