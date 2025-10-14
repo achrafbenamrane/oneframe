@@ -92,12 +92,7 @@ const Newsletter = () => {
           {translations.heading[lang as keyof typeof translations.heading]}
         </motion.h2>
 
-        <motion.p
-          className="mt-4 sm:mt-6 text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto px-2"
-          variants={itemVariants}
-        >
-          {translations.subheading[lang as keyof typeof translations.subheading]}
-        </motion.p>
+      
 
         <motion.form
           className="mt-6 sm:mt-8 md:mt-10 max-w-lg mx-auto px-2"
@@ -216,6 +211,12 @@ const Newsletter = () => {
             </p>
           )}
         </motion.form>
+          <motion.p
+          className="mt-4 sm:mt-6 text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto px-2"
+          variants={itemVariants}
+        >
+          {translations.subheading[lang as keyof typeof translations.subheading]}
+        </motion.p>
 
 
       </motion.div>

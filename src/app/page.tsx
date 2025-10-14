@@ -9,6 +9,7 @@ import TopBar from "./compenents/TopBar";
 import Footer from "./compenents/Footer";
 import Newsletter from "./compenents/Newsletter";
 import { useI18n } from "./compenents/LanguageProvider";
+import CarouselCardsVideo from "./compenents/CarouselCardsVideo";
 
 
 // Define the valid translation keys
@@ -111,7 +112,7 @@ export default function Home() {
 
       <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 pt-4">
         
-        <div className=""></div> 
+        
         <ThreeDCarousel
           images={CAROUSEL_IMAGES}
           leftButtonLabel={t('buy')}
@@ -120,7 +121,7 @@ export default function Home() {
           onRightButtonClick={(i, src) => openDetails(i, src)}
         />
 
-        <h1 className="flex justify-center items-center text-2xl sm:text-3xl text-gray-600 dark:text-gray-200 font-bold mt-8 mb-6">{t('makeOrderTitle')}</h1>
+        <h1 className="flex justify-center items-center text-2xl sm:text-3xl text-gray-800 dark:text-gray-200 font-bold mt-8 mb-6">{t('makeOrderTitle')}</h1>
         <section id="order-form-section" className="w-full flex justify-center mb-12">
           <OrderForm defaultProductId={selectedProductId} />
         </section>
@@ -148,7 +149,7 @@ export default function Home() {
 
       {/* Newsletter Section */}
       <Newsletter />
-
+<CarouselCardsVideo/>
       <Footer />
     </div>
   );

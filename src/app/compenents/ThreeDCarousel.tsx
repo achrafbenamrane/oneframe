@@ -105,7 +105,7 @@ const StoryCard = ({
     >
       {/* TOP: Product Title - Minimal height */}
       <div className="absolute top-0 left-0 right-0 z-20 px-4 py-1 bg-white dark:bg-gray-800">
-        <h3 className="font-bold text-lg sm:text-xl tracking-wide text-center text-gray-900 dark:text-white">
+        <h3 className="font-bold text-lg sm:text-xl tracking-wide text-center text-gray-800 dark:text-white">
           {story.title}
         </h3>
       </div>

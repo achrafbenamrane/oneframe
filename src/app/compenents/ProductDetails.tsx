@@ -124,13 +124,13 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ id, title, price, descr
         <div className="p-4 sm:p-5">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
-              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{t('ownIt')}</p>
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100">{title}</h3>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('ownIt')}</p>
             </div>
             <span className="sr-only">Product ID: {id}</span>
           </div>
 
-          <p className="mt-2 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
             {description}
           </p>
 
