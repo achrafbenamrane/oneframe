@@ -188,12 +188,12 @@ const ThreeDCarousel = ({
   };
 
   // Enhanced touch gesture handlers
-  const handleTouchStart = (e: React.TouchEvent) => {
+  const handleTouchStart = (e: React.TouchEvent<Element>) => {
     touchStartX.current = e.touches[0].clientX;
     setIsSwiping(true);
   };
 
-  const handleTouchMove = (e: React.TouchEvent) => {
+  const handleTouchMove = (e: React.TouchEvent<Element>) => {
     if (!isSwiping) return;
     touchEndX.current = e.touches[0].clientX;
     
@@ -204,7 +204,7 @@ const ThreeDCarousel = ({
     }
   };
 
-  const handleTouchEnd = () => {
+  const handleTouchEnd = (e?: React.TouchEvent<Element>) => {
     if (!isSwiping) return;
     
     setIsSwiping(false);
@@ -305,9 +305,25 @@ const ThreeDCarousel = ({
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
           // Add mouse drag support for desktop touch devices
-          onMouseDown={(e: React.MouseEvent) => handleTouchStart(e as unknown as TouchEvent)}
-          onMouseMove={(e: React.MouseEvent) => handleTouchMove(e as unknown as TouchEvent)}
-          onMouseUp={(e: React.MouseEvent) => handleTouchEnd(e as unknown as TouchEvent)}
+          onMouseDown={(e: React.MouseEvent) => {
+            const touch = {
+              touches: [{ clientX: e.clientX, clientY: e.clientY }]
+            } as React.TouchEvent<Element>;
+            handleTouchStart(touch);
+          }}
+          onMouseMove={(e: React.MouseEvent) => {
+            if (!isSwiping) return;
+            const touch = {
+              touches: [{ clientX: e.clientX, clientY: e.clientY }]
+            } as React.TouchEvent<Element>;
+            handleTouchMove(touch);
+          }}
+          onMouseUp={(e: React.MouseEvent) => {
+            const touch = {
+              touches: [{ clientX: e.clientX, clientY: e.clientY }]
+            } as React.TouchEvent<Element>;
+            handleTouchEnd(touch);
+          }}
           onMouseLeave={handleTouchEnd} // Handle case when mouse leaves during drag
         >
           {/* Cards Container */}
