@@ -188,12 +188,12 @@ const ThreeDCarousel = ({
   };
 
   // Enhanced touch gesture handlers
-  const handleTouchStart = (e: React.TouchEvent<Element>) => {
+  const handleTouchStart = (e: React.TouchEvent<Element> | TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
     setIsSwiping(true);
   };
 
-  const handleTouchMove = (e: React.TouchEvent<Element>) => {
+  const handleTouchMove = (e: React.TouchEvent<Element> | TouchEvent) => {
     if (!isSwiping) return;
     touchEndX.current = e.touches[0].clientX;
     
@@ -204,7 +204,7 @@ const ThreeDCarousel = ({
     }
   };
 
-  const handleTouchEnd = (e?: React.TouchEvent<Element>) => {
+  const handleTouchEnd = (e?: React.TouchEvent<Element> | TouchEvent) => {
     if (!isSwiping) return;
     
     setIsSwiping(false);
@@ -306,25 +306,119 @@ const ThreeDCarousel = ({
           onTouchEnd={handleTouchEnd}
           // Add mouse drag support for desktop touch devices
           onMouseDown={(e: React.MouseEvent) => {
-            const touch = {
-              touches: [{ clientX: e.clientX, clientY: e.clientY }]
-            } as React.TouchEvent<Element>;
-            handleTouchStart(touch);
+            // Create a synthetic touch point
+            const touchPoint = new Touch({
+              identifier: Date.now(),
+              target: e.currentTarget,
+              clientX: e.clientX,
+              clientY: e.clientY,
+              screenX: e.screenX,
+              screenY: e.screenY,
+              pageX: e.pageX,
+              pageY: e.pageY,
+            });
+
+            // Create a synthetic touch event
+            const touchEvent = new TouchEvent('touchstart', {
+              bubbles: true,
+              cancelable: true,
+              touches: [touchPoint],
+              targetTouches: [touchPoint],
+              changedTouches: [touchPoint],
+              shiftKey: e.shiftKey,
+              ctrlKey: e.ctrlKey,
+              altKey: e.altKey,
+              metaKey: e.metaKey,
+            });
+
+            handleTouchStart(touchEvent as unknown as React.TouchEvent<Element>);
           }}
           onMouseMove={(e: React.MouseEvent) => {
             if (!isSwiping) return;
-            const touch = {
-              touches: [{ clientX: e.clientX, clientY: e.clientY }]
-            } as React.TouchEvent<Element>;
-            handleTouchMove(touch);
+            
+            // Create a synthetic touch point
+            const touchPoint = new Touch({
+              identifier: Date.now(),
+              target: e.currentTarget,
+              clientX: e.clientX,
+              clientY: e.clientY,
+              screenX: e.screenX,
+              screenY: e.screenY,
+              pageX: e.pageX,
+              pageY: e.pageY,
+            });
+
+            // Create a synthetic touch event
+            const touchEvent = new TouchEvent('touchmove', {
+              bubbles: true,
+              cancelable: true,
+              touches: [touchPoint],
+              targetTouches: [touchPoint],
+              changedTouches: [touchPoint],
+              shiftKey: e.shiftKey,
+              ctrlKey: e.ctrlKey,
+              altKey: e.altKey,
+              metaKey: e.metaKey,
+            });
+
+            handleTouchMove(touchEvent as unknown as React.TouchEvent<Element>);
           }}
           onMouseUp={(e: React.MouseEvent) => {
-            const touch = {
-              touches: [{ clientX: e.clientX, clientY: e.clientY }]
-            } as React.TouchEvent<Element>;
-            handleTouchEnd(touch);
+            // Create a synthetic touch point
+            const touchPoint = new Touch({
+              identifier: Date.now(),
+              target: e.currentTarget,
+              clientX: e.clientX,
+              clientY: e.clientY,
+              screenX: e.screenX,
+              screenY: e.screenY,
+              pageX: e.pageX,
+              pageY: e.pageY,
+            });
+
+            // Create a synthetic touch event
+            const touchEvent = new TouchEvent('touchend', {
+              bubbles: true,
+              cancelable: true,
+              touches: [],
+              targetTouches: [],
+              changedTouches: [touchPoint],
+              shiftKey: e.shiftKey,
+              ctrlKey: e.ctrlKey,
+              altKey: e.altKey,
+              metaKey: e.metaKey,
+            });
+
+            handleTouchEnd(touchEvent as unknown as React.TouchEvent<Element>);
           }}
-          onMouseLeave={handleTouchEnd} // Handle case when mouse leaves during drag
+          onMouseLeave={(e: React.MouseEvent) => {
+            // Create a synthetic touch point
+            const touchPoint = new Touch({
+              identifier: Date.now(),
+              target: e.currentTarget,
+              clientX: e.clientX,
+              clientY: e.clientY,
+              screenX: e.screenX,
+              screenY: e.screenY,
+              pageX: e.pageX,
+              pageY: e.pageY,
+            });
+
+            // Create a synthetic touch event
+            const touchEvent = new TouchEvent('touchend', {
+              bubbles: true,
+              cancelable: true,
+              touches: [],
+              targetTouches: [],
+              changedTouches: [touchPoint],
+              shiftKey: e.shiftKey,
+              ctrlKey: e.ctrlKey,
+              altKey: e.altKey,
+              metaKey: e.metaKey,
+            });
+
+            handleTouchEnd(touchEvent as unknown as React.TouchEvent<Element>);
+          }} // Handle case when mouse leaves during drag
         >
           {/* Cards Container */}
           <div className="flex items-center justify-center relative w-full overflow-visible">
