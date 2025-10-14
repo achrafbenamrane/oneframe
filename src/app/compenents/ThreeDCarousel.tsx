@@ -57,13 +57,13 @@ const StoryCard = ({
     switch (position) {
       case 'left':
         return {
-          container: 'scale-75 opacity-60 blur-sm -translate-x-12 z-10 cursor-pointer',
+          container: 'scale-75 opacity-60 blur-sm -translate-x-8 lg:-translate-x-12 z-10 cursor-pointer',
           image: 'scale-105',
           buttons: 'opacity-70'
         };
       case 'right':
         return {
-          container: 'scale-75 opacity-60 blur-sm translate-x-12 z-10 cursor-pointer', 
+          container: 'scale-75 opacity-60 blur-sm translate-x-8 lg:translate-x-12 z-10 cursor-pointer', 
           image: 'scale-105',
           buttons: 'opacity-70'
         };
@@ -81,7 +81,7 @@ const StoryCard = ({
 
   return (
     <motion.div
-      className={`relative w-72 h-96 flex-shrink-0 rounded-2xl overflow-hidden shadow-xl group mx-3 transition-all duration-500 ${styles.container}`}
+      className={`relative w-64 sm:w-72 h-96 flex-shrink-0 rounded-2xl overflow-hidden shadow-xl group transition-all duration-500 ${styles.container}`}
       whileHover={{ 
         y: isActive ? -8 : -4, 
         transition: { type: "spring", stiffness: 300 } 
@@ -89,7 +89,7 @@ const StoryCard = ({
     >
       {/* Title at the top */}
       <div className="absolute top-4 left-0 right-0 z-20 px-4">
-        <h3 className="font-bold text-xl tracking-wide text-center text-white bg-black/40 backdrop-blur-sm rounded-lg py-2 px-3">
+        <h3 className="font-bold text-lg sm:text-xl tracking-wide text-center text-white bg-black/40 backdrop-blur-sm rounded-lg py-2 px-3">
           {story.title}
         </h3>
       </div>
@@ -107,11 +107,11 @@ const StoryCard = ({
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent pt-16"></div>
       
       {/* Buttons container with margin from image */}
-      <div className="relative z-10 flex flex-col justify-end h-full pb-6 px-6 text-white">
+      <div className="relative z-10 flex flex-col justify-end h-full pb-6 px-4 sm:px-6 text-white">
         <div className={`flex justify-between gap-2 transition-opacity duration-300 ${styles.buttons}`}>
           <button
             type="button"
-            className="px-4 py-2 text-sm font-medium rounded-md bg-cyan-600 text-white hover:bg-cyan-500 border border-cyan-500/50 shadow flex-1 text-center transition-colors duration-200"
+            className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md bg-cyan-600 text-white hover:bg-cyan-500 border border-cyan-500/50 shadow flex-1 text-center transition-colors duration-200"
             onMouseDown={(e) => e.stopPropagation()}
             onTouchStart={(e) => e.stopPropagation()}
             onClick={(e) => { e.stopPropagation(); if (onLeftClick) { onLeftClick(); } }}
@@ -120,7 +120,7 @@ const StoryCard = ({
           </button>
           <button
             type="button"
-            className="px-4 py-2 text-sm font-medium rounded-md bg-black/70 text-white dark:bg-white/80 dark:text-gray-900 backdrop-blur border border-white/20 dark:border-black/20 shadow flex-1 text-center transition-colors duration-200"
+            className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md bg-black/70 text-white dark:bg-white/80 dark:text-gray-900 backdrop-blur border border-white/20 dark:border-black/20 shadow flex-1 text-center transition-colors duration-200"
             onMouseDown={(e) => e.stopPropagation()}
             onTouchStart={(e) => e.stopPropagation()}
             onClick={(e) => { e.stopPropagation(); if (onRightClick) { onRightClick(); } }}
@@ -233,44 +233,44 @@ const ThreeDCarousel = ({
   const visibleCards = getVisibleCards();
 
   return (
-    <div className="font-sans w-full py-12 md:py-20 flex flex-col items-center justify-center">
-      <div className="w-full max-w-7xl mx-auto px-4">
-        <header className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-black dark:text-white">
+    <div className="font-sans w-full py-12 md:py-20 flex flex-col items-center justify-center overflow-hidden">
+      <div className="w-full max-w-6xl mx-auto px-2 sm:px-4">
+        <header className="text-center mb-8 sm:mb-12">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-black dark:text-white px-2">
             {t('exploreVehicles')}
           </h1>
-          <p className="mt-4 text-lg text-gray-400">
+          <p className="mt-3 sm:mt-4 text-base sm:text-lg text-gray-400 px-2">
             {t('dragToBrowse')}
           </p>
         </header>
 
         {/* Main Carousel Container with touch support */}
         <div 
-          className="relative h-[500px] flex items-center justify-center"
+          className="relative h-[420px] sm:h-[500px] flex items-center justify-center overflow-visible"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
           {/* Cards Container */}
-          <div className="flex items-center justify-center relative w-full">
+          <div className="flex items-center justify-center relative w-full overflow-visible">
             <AnimatePresence mode="wait">
               {visibleCards.map(({ story, position }) => (
                 <motion.div
                   key={`${story.id}-${position}-${lang}`}
-                  className="absolute"
+                  className="absolute overflow-visible"
                   initial={{ 
                     opacity: 0,
-                    x: position === 'left' ? -100 : position === 'right' ? 100 : 0,
+                    x: position === 'left' ? -80 : position === 'right' ? 80 : 0,
                     scale: 0.8
                   }}
                   animate={{ 
                     opacity: 1,
-                    x: position === 'left' ? -180 : position === 'right' ? 180 : 0,
+                    x: position === 'left' ? -140 : position === 'right' ? 140 : 0,
                     scale: position === 'center' ? 1 : 0.75
                   }}
                   exit={{ 
                     opacity: 0,
-                    x: position === 'left' ? -100 : position === 'right' ? 100 : 0,
+                    x: position === 'left' ? -80 : position === 'right' ? 80 : 0,
                     scale: 0.8
                   }}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -292,25 +292,25 @@ const ThreeDCarousel = ({
         </div>
 
         {/* Navigation Controls at Bottom */}
-        <div className="flex items-center justify-center mt-8 space-x-6">
+        <div className="flex items-center justify-center mt-6 sm:mt-8 space-x-4 sm:space-x-6">
           {/* Previous Button */}
           <button
             onClick={goToPrev}
-            className="p-3 rounded-full bg-white/80 dark:bg-gray-800/80 shadow-lg hover:bg-white dark:hover:bg-gray-700 transition-colors backdrop-blur border border-gray-200 dark:border-gray-600"
+            className="p-2 sm:p-3 rounded-full bg-white/80 dark:bg-gray-800/80 shadow-lg hover:bg-white dark:hover:bg-gray-700 transition-colors backdrop-blur border border-gray-200 dark:border-gray-600"
             aria-label="Previous vehicle"
           >
-            <svg className="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
 
           {/* Dot Indicators */}
-          <div className="flex space-x-3">
+          <div className="flex space-x-2 sm:space-x-3">
             {storiesData.map((_, index) => (
               <button
                 key={index}
                 onClick={() => goToIndex(index)}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${
                   index === activeIndex
                     ? 'bg-cyan-500 scale-125'
                     : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400'
@@ -323,20 +323,20 @@ const ThreeDCarousel = ({
           {/* Next Button */}
           <button
             onClick={goToNext}
-            className="p-3 rounded-full bg-white/80 dark:bg-gray-800/80 shadow-lg hover:bg-white dark:hover:bg-gray-700 transition-colors backdrop-blur border border-gray-200 dark:border-gray-600"
+            className="p-2 sm:p-3 rounded-full bg-white/80 dark:bg-gray-800/80 shadow-lg hover:bg-white dark:hover:bg-gray-700 transition-colors backdrop-blur border border-gray-200 dark:border-gray-600"
             aria-label="Next vehicle"
           >
-            <svg className="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
         </div>
 
         {/* Order Now Link */}
-        <div className="mt-10 flex items-center justify-center">
+        <div className="mt-8 sm:mt-10 flex items-center justify-center">
           <a
             href="#order-form-section"
-            className="text-gray-300 font-semibold hover:text-white transition-colors duration-300 group"
+            className="text-gray-300 font-semibold hover:text-white transition-colors duration-300 group text-sm sm:text-base"
             onClick={(e) => {
               e.preventDefault();
               document.getElementById('order-form-section')?.scrollIntoView({ behavior: 'smooth' });
