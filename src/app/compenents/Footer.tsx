@@ -7,7 +7,7 @@ import Image from 'next/image';
 const Footer: React.FC = () => {
   // No unused variables
   return (
-    <footer className=" w-full bg-gray-300 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 py-8 mt-auto">
+    <footer className=" w-full bg-gray-300/90 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 py-8 mt-auto">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className=" grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Brand Section */}
