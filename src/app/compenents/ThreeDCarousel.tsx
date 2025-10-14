@@ -4,7 +4,134 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useI18n } from "./LanguageProvider";
 
-// ... (keep all your existing interfaces and constants)
+interface ThreeDCarouselProps {
+  images?: string[];
+  leftButtonLabel?: string;
+  rightButtonLabel?: string;
+  onLeftButtonClick?: (index: number, src: string) => void;
+  onRightButtonClick?: (index: number, src: string) => void;
+}
+
+const DEFAULT_IMAGES: string[] = [
+  '/Van.jpg',
+  '/Camaro.jpg', 
+  '/Brezina.jpg',
+  '/Bike.jpg',
+  '/f1.jpg',
+  '/Mercedes.jpg',
+];
+
+const VEHICLE_NAMES = [
+  'van',
+  'camaro', 
+  'landRover',
+  'bike',
+  'f1',
+  'mercedesGTR'
+] as const;
+
+interface Story {
+  id: number;
+  imageUrl: string;
+  title: string;
+}
+
+const StoryCard = ({ 
+  story, 
+  leftLabel, 
+  rightLabel, 
+  onLeftClick, 
+  onRightClick,
+  isActive = false,
+  position = 'center'
+}: { 
+  story: Story;
+  leftLabel?: string;
+  rightLabel?: string;
+  onLeftClick?: () => void;
+  onRightClick?: () => void;
+  isActive?: boolean;
+  position?: 'left' | 'center' | 'right';
+}) => {
+  const getCardStyles = () => {
+    switch (position) {
+      case 'left':
+        return {
+          container: 'scale-75 opacity-60 blur-sm -translate-x-8 lg:-translate-x-12 z-10 cursor-pointer',
+          image: 'scale-105',
+          buttons: 'opacity-70'
+        };
+      case 'right':
+        return {
+          container: 'scale-75 opacity-60 blur-sm translate-x-8 lg:translate-x-12 z-10 cursor-pointer', 
+          image: 'scale-105',
+          buttons: 'opacity-70'
+        };
+      case 'center':
+      default:
+        return {
+          container: 'scale-100 opacity-100 blur-0 z-20',
+          image: 'scale-100',
+          buttons: 'opacity-100'
+        };
+    }
+  };
+
+  const styles = getCardStyles();
+
+  return (
+    <motion.div
+      className={`relative w-64 sm:w-72 h-96 flex-shrink-0 rounded-2xl overflow-hidden shadow-xl group transition-all duration-300 ${styles.container}`}
+      whileHover={{ 
+        y: isActive ? -8 : -4, 
+        transition: { type: "spring", stiffness: 300 } 
+      }}
+    >
+      {/* Title at the top */}
+      <div className="absolute top-4 left-0 right-0 z-20 px-4">
+        <h3 className="font-bold text-lg sm:text-xl tracking-wide text-center text-white bg-black/40 backdrop-blur-sm rounded-lg py-2 px-3">
+          {story.title}
+        </h3>
+      </div>
+
+      <Image
+        src={story.imageUrl}
+        alt={story.title}
+        width={288}
+        height={384}
+        className={`absolute inset-0 w-full h-full object-cover transition-transform duration-500 pointer-events-none ${styles.image}`}
+        priority={isActive}
+      />
+      
+      {/* Gradient overlay - moved down to create space between image and buttons */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent pt-16"></div>
+      
+      {/* Buttons container with margin from image */}
+      <div className="relative z-10 flex flex-col justify-end h-full pb-6 px-4 sm:px-6 text-white">
+        <div className={`flex justify-between gap-2 transition-opacity duration-300 ${styles.buttons}`}>
+          <button
+            type="button"
+            className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md bg-cyan-600 text-white hover:bg-cyan-500 border border-cyan-500/50 shadow flex-1 text-center transition-colors duration-200"
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); if (onLeftClick) { onLeftClick(); } }}
+          >
+            {leftLabel}
+          </button>
+          <button
+            type="button"
+            className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md bg-black/70 text-white dark:bg-white/80 dark:text-gray-900 backdrop-blur border border-white/20 dark:border-black/20 shadow flex-1 text-center transition-colors duration-200"
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); if (onRightClick) { onRightClick(); } }}
+          >
+            {rightLabel}
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
 
 const ThreeDCarousel = ({
   images = DEFAULT_IMAGES,
@@ -14,6 +141,7 @@ const ThreeDCarousel = ({
   onRightButtonClick,
 }: ThreeDCarouselProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [direction, setDirection] = useState(0); // -1 for left, 1 for right, 0 for initial
   const [isSwiping, setIsSwiping] = useState(false);
   const { t, lang } = useI18n();
 
@@ -44,14 +172,18 @@ const ThreeDCarousel = ({
   };
 
   const goToNext = () => {
+    setDirection(1); // Right direction
     setActiveIndex((current) => (current + 1) % storiesData.length);
   };
 
   const goToPrev = () => {
+    setDirection(-1); // Left direction
     setActiveIndex((current) => (current - 1 + storiesData.length) % storiesData.length);
   };
 
   const goToIndex = (index: number) => {
+    const newDirection = index > activeIndex ? 1 : -1;
+    setDirection(newDirection);
     setActiveIndex(index);
   };
 
@@ -85,7 +217,6 @@ const ThreeDCarousel = ({
 
     const diffX = touchStartX.current - touchEndX.current;
     const minSwipeDistance = 30; // Reduced for better sensitivity
-    const swipeVelocity = Math.abs(diffX);
 
     // Only trigger if swipe distance is sufficient
     if (Math.abs(diffX) > minSwipeDistance) {
@@ -112,20 +243,47 @@ const ThreeDCarousel = ({
     }
   };
 
-  // Auto-play functionality (pauses during swipe)
-  useEffect(() => {
-    if (isSwiping) return;
-    
-    const interval = setInterval(goToNext, 5000);
-    return () => clearInterval(interval);
-  }, [isSwiping]);
+  // REMOVED: Auto-play functionality completely
 
   // Reset active index when language changes
   useEffect(() => {
     setActiveIndex(0);
+    setDirection(0);
   }, [lang]);
 
   const visibleCards = getVisibleCards();
+
+  // Animation variants for smooth scrolling
+  const cardVariants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? 300 : -300,
+      opacity: 0,
+      scale: 0.8
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+      scale: 1
+    },
+    exit: (direction: number) => ({
+      x: direction < 0 ? 300 : -300,
+      opacity: 0,
+      scale: 0.8
+    })
+  };
+
+  const sideCardVariants = {
+    left: {
+      x: -140,
+      opacity: 0.6,
+      scale: 0.75
+    },
+    right: {
+      x: 140,
+      opacity: 0.6,
+      scale: 0.75
+    }
+  };
 
   return (
     <div className="font-sans w-full py-12 md:py-20 flex flex-col items-center justify-center overflow-hidden">
@@ -135,7 +293,7 @@ const ThreeDCarousel = ({
             {t('exploreVehicles')}
           </h1>
           <p className="mt-3 sm:mt-4 text-base sm:text-lg text-gray-400 px-2">
-            {t('dragToBrowse')} {/* Make sure this text encourages swiping */}
+            {t('dragToBrowse')}
           </p>
         </header>
 
@@ -154,27 +312,22 @@ const ThreeDCarousel = ({
         >
           {/* Cards Container */}
           <div className="flex items-center justify-center relative w-full overflow-visible">
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="popLayout" custom={direction}>
               {visibleCards.map(({ story, position }) => (
                 <motion.div
                   key={`${story.id}-${position}-${lang}`}
                   className="absolute overflow-visible select-none" // Prevent text selection during swipe
-                  initial={{ 
-                    opacity: 0,
-                    x: position === 'left' ? -80 : position === 'right' ? 80 : 0,
-                    scale: 0.8
+                  custom={direction}
+                  variants={position === 'center' ? cardVariants : sideCardVariants}
+                  initial={position === 'center' ? "enter" : position}
+                  animate={position === 'center' ? "center" : position}
+                  exit={position === 'center' ? "exit" : position}
+                  transition={{
+                    type: "spring",
+                    stiffness: 400,
+                    damping: 30,
+                    duration: 0.3
                   }}
-                  animate={{ 
-                    opacity: 1,
-                    x: position === 'left' ? -140 : position === 'right' ? 140 : 0,
-                    scale: position === 'center' ? 1 : 0.75
-                  }}
-                  exit={{ 
-                    opacity: 0,
-                    x: position === 'left' ? -80 : position === 'right' ? 80 : 0,
-                    scale: 0.8
-                  }}
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
                   onClick={() => position !== 'center' && handleSideCardClick(position)}
                 >
                   <StoryCard 
@@ -192,7 +345,6 @@ const ThreeDCarousel = ({
           </div>
         </div>
 
-        {/* Rest of your code remains the same */}
         {/* Navigation Controls at Bottom */}
         <div className="flex items-center justify-center mt-6 sm:mt-8 space-x-4 sm:space-x-6">
           {/* Previous Button */}
