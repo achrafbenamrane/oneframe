@@ -114,10 +114,10 @@ const StoryCard = ({
       <div className="absolute top-8 bottom-8 left-0 right-0">
         <Image
           src={story.imageUrl}
-          alt={story.title}
+          alt={`Vehicle ${story.id + 1}`}
           fill
           className={`object-cover transition-transform duration-500 pointer-events-none ${styles.image}`}
-          priority={isActive}
+          priority
         />
       </div>
 

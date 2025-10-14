@@ -48,7 +48,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
           alt={title}
           fill
           className="object-cover"
-          priority={isActive}
+          priority
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 60vw, 40vw"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />

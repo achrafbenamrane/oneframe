@@ -39,7 +39,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ id, title, price, descr
     <div className="min-h-screen w-full flex items-center justify-center p-4">
       <div className="w-full max-w-md sm:max-w-lg bg-white dark:bg-gray-900 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
         {/* Media/Carousel - now with multiple images */}
-        <div className="relative h-74 sm:h-96 bg-gray-200 dark:bg-gray-800 flex items-center justify-center group">
+        <div className="relative h-84 sm:h-96 bg-gray-200 dark:bg-gray-800 flex items-center justify-center group">
           {images && images.length > 0 && images[currentIndex] ? (
             <div className="relative w-full h-full flex items-center justify-center">
               {/* Left arrow - only show on hover (desktop) or always on mobile */}
@@ -61,6 +61,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ id, title, price, descr
                 height={900}
                 className="w-full h-full object-cover transition-all duration-300 rounded-2xl"
                 priority
+                loading="eager"
                 onError={(e) => {
                   console.error('Image failed to load:', images[currentIndex]);
                   const target = e.target as HTMLImageElement;

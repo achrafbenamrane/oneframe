@@ -109,7 +109,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-[url(/whitebg.jpg)]  dark:bg-[url(/bggg.jpg)]">
       <TopBar />
 
-      <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 pt-24">
+      <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 pt-4">
         
         <div className=""></div> 
         <ThreeDCarousel
