@@ -123,15 +123,24 @@ const Newsletter = () => {
                   'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                  name: 'Newsletter Subscription',
-                  number: phoneNumber,
-                  message: 'Newsletter phone number submission',
+                  number: phoneNumber
                 }),
               });
 
-              if (!response.ok) {
-                throw new Error('Failed to send');
+              const responseData = await response.json();
+              
+              if (!response.ok || !responseData.success) {
+                console.error('API Error:', {
+                  status: response.status,
+                  statusText: response.statusText,
+                  data: responseData
+                });
+                
+                const errorMessage = responseData.error || `Error ${response.status}: ${response.statusText}`;
+                throw new Error(errorMessage);
               }
+
+              console.log('Success:', responseData);
 
               form.reset();
               setSubmitStatus('success');
@@ -141,10 +150,15 @@ const Newsletter = () => {
               setTimeout(() => {
                 setSubmitStatus('idle');
               }, 3000);
-            } catch (error) {
-              console.error('Error:', error);
+            } catch (err) {
+              const error = err as Error;
+              console.error('Submission Error:', error);
               setSubmitStatus('error');
-              setPhoneError(lang === 'ar' ? 'حدث خطأ أثناء إرسال رقم هاتفك. يرجى المحاولة مرة أخرى.' : 'An error occurred while sending your phone number. Please try again.');
+              setPhoneError(
+                lang === 'ar' 
+                  ? `حدث خطأ أثناء إرسال رقم هاتفك. يرجى المحاولة مرة أخرى. (${error.message})`
+                  : `An error occurred while sending your phone number. Please try again. (${error.message})`
+              );
             } finally {
               setIsSubmitting(false);
             }

@@ -55,12 +55,34 @@ export default function OrderForm({ defaultProductId }: { defaultProductId?: str
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(defaultProductId || "");
+  const [phoneError, setPhoneError] = useState<string>('');
 
   // New fields per the reference design
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [wilaya, setWilaya] = useState("");
   const [commune, setCommune] = useState("");
+
+  // Phone number validation
+  const validatePhoneNumber = (phone: string) => {
+    const phoneRegex = /^(0)(5|6|7)[0-9]{8}$/;
+    if (!phone) {
+      return lang === 'ar' ? 'رقم الهاتف مطلوب' : 'Phone number is required';
+    }
+    if (!phone.startsWith('0')) {
+      return lang === 'ar' ? 'يجب أن يبدأ رقم الهاتف بـ 0' : 'Phone number must start with 0';
+    }
+    if (!/^0[567]/.test(phone)) {
+      return lang === 'ar' ? 'يجب أن يكون الرقم الثاني 5 أو 6 أو 7' : 'Second digit must be 5, 6, or 7';
+    }
+    if (phone.length !== 10) {
+      return lang === 'ar' ? 'يجب أن يتكون رقم الهاتف من 10 أرقام' : 'Phone number must be exactly 10 digits';
+    }
+    if (!phoneRegex.test(phone)) {
+      return lang === 'ar' ? 'رقم الهاتف غير صالح' : 'Invalid phone number format';
+    }
+    return '';
+  };
   const communesForWilaya = useMemo(() => {
     if (!wilaya) return [{ value: "", labelEn: "Commune", labelAr: "البلدية" }];
     return ALL_COMMUNES[wilaya] || [{ value: "", labelEn: "Commune", labelAr: "البلدية" }];
@@ -93,6 +115,14 @@ export default function OrderForm({ defaultProductId }: { defaultProductId?: str
       alert(t('selectVehicleFirst'));
       return;
     }
+
+    // Validate phone number before submission
+    const phoneValidationError = validatePhoneNumber(phone);
+    if (phoneValidationError) {
+      setPhoneError(phoneValidationError);
+      return;
+    }
+
     setLoading(true);
 
     const data = {
@@ -212,21 +242,34 @@ export default function OrderForm({ defaultProductId }: { defaultProductId?: str
         <label className={`${labelClass} ${isRTL ? 'justify-end' : ''}`}>
           {t('phoneLabel')} {asterisk}
         </label>
-        <div className={`${fieldWrapper} mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
-          <input
-            name="number"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder={t('phonePlaceholder')}
-            required
-            type="tel"
-            inputMode="numeric"
-            maxLength={10}
-            className={`${inputBase} ${isRTL ? 'text-right' : 'text-left'}`}
-          />
-          <div className="px-3 py-2 bg-gray-200 dark:bg-gray-700 h-full flex items-center justify-center">
-            {IconPhone}
+        <div className="flex flex-col w-full">
+          <div className={`${fieldWrapper} ${phoneError ? 'border-red-500' : ''} ${isRTL ? 'flex-row-reverse' : ''}`}>
+            <input
+              name="number"
+              value={phone}
+              onChange={(e) => {
+                const newPhone = e.target.value.replace(/[^0-9]/g, '').slice(0, 10);
+                setPhone(newPhone);
+                const error = validatePhoneNumber(newPhone);
+                setPhoneError(error);
+              }}
+              placeholder={t('phonePlaceholder')}
+              required
+              type="tel"
+              pattern="(0)(5|6|7)[0-9]{8}"
+              inputMode="numeric"
+              className={`${inputBase} ${isRTL ? 'text-right' : 'text-left'}`}
+              title={lang === 'ar' ? 'يرجى إدخال رقم هاتف جزائري صحيح (مثال: 0561234567)' : 'Please enter a valid Algerian phone number (e.g., 0561234567)'}
+            />
+            <div className="px-3 py-2 bg-gray-200 dark:bg-gray-700 h-full flex items-center justify-center">
+              {IconPhone}
+            </div>
           </div>
+          {phoneError && (
+            <p className={`text-sm text-red-500 mt-1 ${isRTL ? 'text-right' : 'text-left'}`}>
+              {phoneError}
+            </p>
+          )}
         </div>
 
         {/* Wilaya */}
