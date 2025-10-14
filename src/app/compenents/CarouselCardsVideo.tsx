@@ -50,7 +50,7 @@ const StoryCard = ({ story, isActive = false }: { story: Story; isActive?: boole
 
   return (
     <motion.div
-      className="relative w-64 h-80 sm:w-72 sm:h-96 flex-shrink-0 rounded-xl overflow-hidden shadow-2xl group mx-2"
+      className="relative w-64 h-80 sm:w-72 sm:h-96 flex-shrink-0 rounded-2xl overflow-hidden shadow-2xl group mx-2"
       whileHover={{ y: -8, scale: 1.02, transition: { type: "spring", stiffness: 300 } }}
     >
       <video
@@ -61,9 +61,9 @@ const StoryCard = ({ story, isActive = false }: { story: Story; isActive?: boole
         playsInline
         preload="metadata"
         onError={handleVideoError}
-        className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 pointer-events-none"
+        className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 pointer-events-none rounded-2xl"
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent rounded-2xl"></div>
       <div className="relative z-10 flex flex-col justify-end h-full p-4 sm:p-6 text-white">
         <h3 className="font-bold text-xl sm:text-2xl tracking-wide">{story.title}</h3>
         {/* Video play indicator */}
@@ -87,7 +87,9 @@ export default function CarouselCards() {
       if (containerRef.current && trackRef.current) {
         const containerWidth = containerRef.current.offsetWidth;
         const trackWidth = trackRef.current.scrollWidth;
-        setDragConstraint(containerWidth - trackWidth);
+        // Calculate the maximum drag constraint to show all cards
+        const constraint = containerWidth - trackWidth;
+        setDragConstraint(constraint);
       }
     };
 
@@ -107,27 +109,32 @@ export default function CarouselCards() {
       <div className="w-full max-w-7xl mx-auto px-4">
         <header className="text-center mb-8 sm:mb-12">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-black dark:text-white">
-            Explore Worlds
+            Explore Our Products
           </h1>
           <p className="mt-3 sm:mt-4 text-base sm:text-lg text-gray-400">
-            Drag to journey through magical landscapes.
+             
           </p>
         </header>
 
-        <motion.div
+        <div 
           ref={containerRef}
-          className="overflow-hidden cursor-grab"
-          whileTap={{ cursor: "grabbing" }}
+          className="overflow-hidden cursor-grab relative"
         >
           <motion.div
             ref={trackRef}
-            className="flex space-x-4 sm:space-x-6 pb-6 px-4 justify-center"
+            className="flex space-x-4 sm:space-x-6 pb-6"
             drag="x"
             dragConstraints={{
               right: 0,
-              left: dragConstraint - 32,
+              left: dragConstraint,
             }}
-            dragElastic={0.15}
+            dragElastic={0.2}
+            // Add padding to ensure all cards are visible when dragging to extremes
+            style={{ 
+              paddingLeft: 'calc(50% - 8rem)',
+              paddingRight: 'calc(50% - 8rem)'
+            }}
+            whileTap={{ cursor: "grabbing" }}
           >
             {storiesData.map((story) => (
               <div
@@ -145,14 +152,18 @@ export default function CarouselCards() {
               </div>
             ))}
           </motion.div>
-        </motion.div>
+
+          {/* Gradient overlays to indicate more content */}
+          <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white dark:from-gray-900 to-transparent pointer-events-none"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white dark:from-gray-900 to-transparent pointer-events-none"></div>
+        </div>
 
         <div className="mt-8 sm:mt-10 flex items-center justify-center">
           <a
             href="#"
             className="text-gray-300 font-semibold hover:text-white transition-colors duration-300 group text-sm sm:text-base"
           >
-            Discover More
+            Make Order Now
             <span className="inline-block transition-transform duration-300 group-hover:translate-x-1 ml-1">
               &rarr;
             </span>
