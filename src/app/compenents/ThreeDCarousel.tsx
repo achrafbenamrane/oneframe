@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useRef, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useI18n } from "./LanguageProvider";
 
@@ -41,37 +41,77 @@ const StoryCard = ({
   leftLabel, 
   rightLabel, 
   onLeftClick, 
-  onRightClick 
+  onRightClick,
+  isActive = false,
+  position = 'center'
 }: { 
   story: Story;
   leftLabel?: string;
   rightLabel?: string;
   onLeftClick?: () => void;
   onRightClick?: () => void;
+  isActive?: boolean;
+  position?: 'left' | 'center' | 'right';
 }) => {
+  const getCardStyles = () => {
+    switch (position) {
+      case 'left':
+        return {
+          container: 'scale-75 opacity-60 blur-sm -translate-x-12 z-10 cursor-pointer',
+          image: 'scale-105',
+          buttons: 'opacity-70'
+        };
+      case 'right':
+        return {
+          container: 'scale-75 opacity-60 blur-sm translate-x-12 z-10 cursor-pointer', 
+          image: 'scale-105',
+          buttons: 'opacity-70'
+        };
+      case 'center':
+      default:
+        return {
+          container: 'scale-100 opacity-100 blur-0 z-20',
+          image: 'scale-100',
+          buttons: 'opacity-100'
+        };
+    }
+  };
+
+  const styles = getCardStyles();
+
   return (
     <motion.div
-      className="relative w-72 h-96 flex-shrink-0 rounded-lg overflow-hidden shadow-xl group mx-3"
-      whileHover={{ y: -8, transition: { type: "spring", stiffness: 300 } }}
+      className={`relative w-72 h-96 flex-shrink-0 rounded-2xl overflow-hidden shadow-xl group mx-3 transition-all duration-500 ${styles.container}`}
+      whileHover={{ 
+        y: isActive ? -8 : -4, 
+        transition: { type: "spring", stiffness: 300 } 
+      }}
     >
+      {/* Title at the top */}
+      <div className="absolute top-4 left-0 right-0 z-20 px-4">
+        <h3 className="font-bold text-xl tracking-wide text-center text-white bg-black/40 backdrop-blur-sm rounded-lg py-2 px-3">
+          {story.title}
+        </h3>
+      </div>
+
       <Image
         src={story.imageUrl}
         alt={story.title}
         width={288}
         height={384}
-        className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 pointer-events-none"
-        priority
+        className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 pointer-events-none ${styles.image}`}
+        priority={isActive}
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-      <div className="relative z-10 flex flex-col justify-end h-full p-6 text-white">
-        <h3 className="font-bold text-2xl tracking-wide text-center min-h-[2.5rem] flex items-center justify-center">
-          {story.title}
-        </h3>
-        
-        <div className="pointer-events-none mt-4 flex justify-between gap-2">
+      
+      {/* Gradient overlay - moved down to create space between image and buttons */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent pt-16"></div>
+      
+      {/* Buttons container with margin from image */}
+      <div className="relative z-10 flex flex-col justify-end h-full pb-6 px-6 text-white">
+        <div className={`flex justify-between gap-2 transition-opacity duration-300 ${styles.buttons}`}>
           <button
             type="button"
-            className="pointer-events-auto px-3 py-1.5 text-xs font-medium rounded-md bg-cyan-600 text-white hover:bg-cyan-500 border border-cyan-500/50 shadow flex-1 text-center"
+            className="px-4 py-2 text-sm font-medium rounded-md bg-cyan-600 text-white hover:bg-cyan-500 border border-cyan-500/50 shadow flex-1 text-center transition-colors duration-200"
             onMouseDown={(e) => e.stopPropagation()}
             onTouchStart={(e) => e.stopPropagation()}
             onClick={(e) => { e.stopPropagation(); if (onLeftClick) { onLeftClick(); } }}
@@ -80,7 +120,7 @@ const StoryCard = ({
           </button>
           <button
             type="button"
-            className="pointer-events-auto px-3 py-1.5 text-xs font-medium rounded-md bg-black/70 text-white dark:bg-white/80 dark:text-gray-900 backdrop-blur border border-white/20 dark:border-black/20 shadow flex-1 text-center"
+            className="px-4 py-2 text-sm font-medium rounded-md bg-black/70 text-white dark:bg-white/80 dark:text-gray-900 backdrop-blur border border-white/20 dark:border-black/20 shadow flex-1 text-center transition-colors duration-200"
             onMouseDown={(e) => e.stopPropagation()}
             onTouchStart={(e) => e.stopPropagation()}
             onClick={(e) => { e.stopPropagation(); if (onRightClick) { onRightClick(); } }}
@@ -100,11 +140,12 @@ const ThreeDCarousel = ({
   onLeftButtonClick,
   onRightButtonClick,
 }: ThreeDCarouselProps) => {
-  const trackRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [dragConstraint, setDragConstraint] = useState(0);
-  const [carouselKey, setCarouselKey] = useState(0); // Add key to force reset
+  const [activeIndex, setActiveIndex] = useState(0);
   const { t, lang } = useI18n();
+
+  // Touch gesture support
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
 
   // Convert your images to stories data with proper translated names
   const storiesData: Story[] = images.map((imageUrl, index) => ({
@@ -113,32 +154,83 @@ const ThreeDCarousel = ({
     title: t(VEHICLE_NAMES[index]),
   }));
 
-  // Reset carousel position when language changes
-  useEffect(() => {
-    const calculateConstraints = () => {
-      if (containerRef.current && trackRef.current) {
-        const containerWidth = containerRef.current.offsetWidth;
-        const trackWidth = trackRef.current.scrollWidth;
-        
-        // For RTL languages (like Arabic), we need to invert the drag constraints
-        if (lang === 'ar') {
-          setDragConstraint(Math.max(0, trackWidth - containerWidth));
-        } else {
-          setDragConstraint(Math.min(0, containerWidth - trackWidth));
-        }
+  // Calculate indices for previous, active, and next cards
+  const getVisibleCards = () => {
+    const totalCards = storiesData.length;
+    
+    const prevIndex = (activeIndex - 1 + totalCards) % totalCards;
+    const nextIndex = (activeIndex + 1) % totalCards;
+
+    return [
+      { story: storiesData[prevIndex], position: 'left' as const },
+      { story: storiesData[activeIndex], position: 'center' as const },
+      { story: storiesData[nextIndex], position: 'right' as const },
+    ];
+  };
+
+  const goToNext = () => {
+    setActiveIndex((current) => (current + 1) % storiesData.length);
+  };
+
+  const goToPrev = () => {
+    setActiveIndex((current) => (current - 1 + storiesData.length) % storiesData.length);
+  };
+
+  const goToIndex = (index: number) => {
+    setActiveIndex(index);
+  };
+
+  // Touch gesture handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStartX.current || !touchEndX.current) return;
+
+    const diffX = touchStartX.current - touchEndX.current;
+    const minSwipeDistance = 50; // Minimum distance for a swipe
+
+    if (Math.abs(diffX) > minSwipeDistance) {
+      if (diffX > 0) {
+        // Swipe left - go to next
+        goToNext();
+      } else {
+        // Swipe right - go to previous
+        goToPrev();
       }
-    };
+    }
 
-    calculateConstraints();
-    window.addEventListener("resize", calculateConstraints);
+    // Reset values
+    touchStartX.current = 0;
+    touchEndX.current = 0;
+  };
 
-    return () => window.removeEventListener("resize", calculateConstraints);
-  }, [images, t, lang]);
+  // Click handlers for side cards
+  const handleSideCardClick = (position: 'left' | 'right') => {
+    if (position === 'left') {
+      goToPrev();
+    } else if (position === 'right') {
+      goToNext();
+    }
+  };
 
-  // Force carousel reset when language changes
+  // Auto-play functionality
   useEffect(() => {
-    setCarouselKey(prev => prev + 1); // Change key to force remount
+    const interval = setInterval(goToNext, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Reset active index when language changes
+  useEffect(() => {
+    setActiveIndex(0);
   }, [lang]);
+
+  const visibleCards = getVisibleCards();
 
   return (
     <div className="font-sans w-full py-12 md:py-20 flex flex-col items-center justify-center">
@@ -152,42 +244,95 @@ const ThreeDCarousel = ({
           </p>
         </header>
 
-        {/* FIXED: Added key to force reset on language change */}
-        <div className="w-full overflow-hidden" key={carouselKey}>
-          <motion.div
-            ref={containerRef}
-            className="overflow-hidden cursor-grab"
-            whileTap={{ cursor: "grabbing" }}
-          >
-            <motion.div
-              ref={trackRef}
-              className="flex space-x-6 pb-6"
-              drag="x"
-              dragConstraints={{
-                right: lang === 'ar' ? dragConstraint : 0,
-                left: lang === 'ar' ? 0 : dragConstraint,
-              }}
-              dragElastic={0.15}
-              // Always start from the first item (left side)
-              initial={{ x: 0 }}
-              // Prevent any animation that might cause shifting
-              animate={{ x: 0 }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            >
-              {storiesData.map((story) => (
-                <StoryCard 
-                  key={`${story.id}-${lang}`} // Include lang in key to force re-render
-                  story={story}
-                  leftLabel={leftButtonLabel}
-                  rightLabel={rightButtonLabel}
-                  onLeftClick={onLeftButtonClick ? () => onLeftButtonClick(story.id - 1, story.imageUrl) : undefined}
-                  onRightClick={onRightButtonClick ? () => onRightButtonClick(story.id - 1, story.imageUrl) : undefined}
-                />
+        {/* Main Carousel Container with touch support */}
+        <div 
+          className="relative h-[500px] flex items-center justify-center"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          {/* Cards Container */}
+          <div className="flex items-center justify-center relative w-full">
+            <AnimatePresence mode="wait">
+              {visibleCards.map(({ story, position }) => (
+                <motion.div
+                  key={`${story.id}-${position}-${lang}`}
+                  className="absolute"
+                  initial={{ 
+                    opacity: 0,
+                    x: position === 'left' ? -100 : position === 'right' ? 100 : 0,
+                    scale: 0.8
+                  }}
+                  animate={{ 
+                    opacity: 1,
+                    x: position === 'left' ? -180 : position === 'right' ? 180 : 0,
+                    scale: position === 'center' ? 1 : 0.75
+                  }}
+                  exit={{ 
+                    opacity: 0,
+                    x: position === 'left' ? -100 : position === 'right' ? 100 : 0,
+                    scale: 0.8
+                  }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  onClick={() => position !== 'center' && handleSideCardClick(position)}
+                >
+                  <StoryCard 
+                    story={story}
+                    leftLabel={leftButtonLabel}
+                    rightLabel={rightButtonLabel}
+                    onLeftClick={onLeftButtonClick ? () => onLeftButtonClick(story.id - 1, story.imageUrl) : undefined}
+                    onRightClick={onRightButtonClick ? () => onRightButtonClick(story.id - 1, story.imageUrl) : undefined}
+                    isActive={position === 'center'}
+                    position={position}
+                  />
+                </motion.div>
               ))}
-            </motion.div>
-          </motion.div>
+            </AnimatePresence>
+          </div>
         </div>
 
+        {/* Navigation Controls at Bottom */}
+        <div className="flex items-center justify-center mt-8 space-x-6">
+          {/* Previous Button */}
+          <button
+            onClick={goToPrev}
+            className="p-3 rounded-full bg-white/80 dark:bg-gray-800/80 shadow-lg hover:bg-white dark:hover:bg-gray-700 transition-colors backdrop-blur border border-gray-200 dark:border-gray-600"
+            aria-label="Previous vehicle"
+          >
+            <svg className="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+
+          {/* Dot Indicators */}
+          <div className="flex space-x-3">
+            {storiesData.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => goToIndex(index)}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  index === activeIndex
+                    ? 'bg-cyan-500 scale-125'
+                    : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400'
+                }`}
+                aria-label={`Go to vehicle ${index + 1}`}
+              />
+            ))}
+          </div>
+
+          {/* Next Button */}
+          <button
+            onClick={goToNext}
+            className="p-3 rounded-full bg-white/80 dark:bg-gray-800/80 shadow-lg hover:bg-white dark:hover:bg-gray-700 transition-colors backdrop-blur border border-gray-200 dark:border-gray-600"
+            aria-label="Next vehicle"
+          >
+            <svg className="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Order Now Link */}
         <div className="mt-10 flex items-center justify-center">
           <a
             href="#order-form-section"
