@@ -43,7 +43,8 @@ const StoryCard = ({
   onLeftClick, 
   onRightClick,
   isActive = false,
-  position = 'center'
+  position = 'center',
+  isRTL = false
 }: { 
   story: Story;
   leftLabel?: string;
@@ -52,9 +53,15 @@ const StoryCard = ({
   onRightClick?: () => void;
   isActive?: boolean;
   position?: 'left' | 'center' | 'right';
+  isRTL?: boolean;
 }) => {
   const getCardStyles = () => {
-    switch (position) {
+    // For RTL languages, swap left and right positions
+    const effectivePosition = isRTL ? 
+      (position === 'left' ? 'right' : position === 'right' ? 'left' : 'center') 
+      : position;
+
+    switch (effectivePosition) {
       case 'left':
         return {
           container: 'scale-75 opacity-60 blur-sm -translate-x-8 lg:-translate-x-12 z-10 cursor-pointer',
@@ -79,54 +86,58 @@ const StoryCard = ({
 
   const styles = getCardStyles();
 
+  // For RTL languages, swap the button order but keep their functionality
+  const buttons = isRTL ? [
+    { label: rightLabel, onClick: onRightClick, className: "px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md bg-black/70 text-white dark:bg-white/80 dark:text-gray-900 backdrop-blur border border-white/20 dark:border-black/20 shadow flex-1 text-center transition-colors duration-200" },
+    { label: leftLabel, onClick: onLeftClick, className: "px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md bg-cyan-600 text-white hover:bg-cyan-500 border border-cyan-500/50 shadow flex-1 text-center transition-colors duration-200" }
+  ] : [
+    { label: leftLabel, onClick: onLeftClick, className: "px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md bg-cyan-600 text-white hover:bg-cyan-500 border border-cyan-500/50 shadow flex-1 text-center transition-colors duration-200" },
+    { label: rightLabel, onClick: onRightClick, className: "px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md bg-black/70 text-white dark:bg-white/80 dark:text-gray-900 backdrop-blur border border-white/20 dark:border-black/20 shadow flex-1 text-center transition-colors duration-200" }
+  ];
+
   return (
     <motion.div
-      className={`relative w-64 sm:w-72 h-96 flex-shrink-0 rounded-2xl overflow-hidden shadow-xl group transition-all duration-300 ${styles.container}`}
+      className={`relative w-64 sm:w-72 h-96 flex-shrink-0 rounded-2xl overflow-hidden shadow-xl group transition-all duration-300 bg-white dark:bg-gray-800 ${styles.container}`}
       whileHover={{ 
         y: isActive ? -8 : -4, 
         transition: { type: "spring", stiffness: 300 } 
       }}
     >
-      {/* Title at the top */}
-      <div className="absolute top-4 left-0 right-0 z-20 px-4">
-        <h3 className="font-bold text-lg sm:text-xl tracking-wide text-center text-white bg-black/40 backdrop-blur-sm rounded-lg py-2 px-3">
+      {/* TOP: Product Title - Minimal height */}
+      <div className="absolute top-0 left-0 right-0 z-20 px-4 py-1 bg-white dark:bg-gray-800">
+        <h3 className="font-bold text-lg sm:text-xl tracking-wide text-center text-gray-900 dark:text-white">
           {story.title}
         </h3>
       </div>
 
-      <Image
-        src={story.imageUrl}
-        alt={story.title}
-        width={288}
-        height={384}
-        className={`absolute inset-0 w-full h-full object-cover transition-transform duration-500 pointer-events-none ${styles.image}`}
-        priority={isActive}
-      />
-      
-      {/* Gradient overlay - moved down to create space between image and buttons */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent pt-16"></div>
-      
-      {/* Buttons container with margin from image */}
-      <div className="relative z-10 flex flex-col justify-end h-full pb-6 px-4 sm:px-6 text-white">
-        <div className={`flex justify-between gap-2 transition-opacity duration-300 ${styles.buttons}`}>
-          <button
-            type="button"
-            className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md bg-cyan-600 text-white hover:bg-cyan-500 border border-cyan-500/50 shadow flex-1 text-center transition-colors duration-200"
-            onMouseDown={(e) => e.stopPropagation()}
-            onTouchStart={(e) => e.stopPropagation()}
-            onClick={(e) => { e.stopPropagation(); if (onLeftClick) { onLeftClick(); } }}
-          >
-            {leftLabel}
-          </button>
-          <button
-            type="button"
-            className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md bg-black/70 text-white dark:bg-white/80 dark:text-gray-900 backdrop-blur border border-white/20 dark:border-black/20 shadow flex-1 text-center transition-colors duration-200"
-            onMouseDown={(e) => e.stopPropagation()}
-            onTouchStart={(e) => e.stopPropagation()}
-            onClick={(e) => { e.stopPropagation(); if (onRightClick) { onRightClick(); } }}
-          >
-            {rightLabel}
-          </button>
+      {/* CENTER: Product Image - Maximum height */}
+      <div className="absolute top-8 bottom-8 left-0 right-0">
+        <Image
+          src={story.imageUrl}
+          alt={story.title}
+          fill
+          className={`object-cover transition-transform duration-500 pointer-events-none ${styles.image}`}
+          priority={isActive}
+        />
+      </div>
+
+      {/* BOTTOM: Buttons - Minimal height */}
+      <div className="absolute bottom-0 left-0 right-0 z-10 bg-white dark:bg-gray-800">
+        <div className={`p-1 transition-opacity duration-300 ${styles.buttons}`}>
+          <div className="flex justify-between gap-2">
+            {buttons.map((button, index) => (
+              <button
+                key={index}
+                type="button"
+                className={button.className}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+                onClick={(e) => { e.stopPropagation(); if (button.onClick) { button.onClick(); } }}
+              >
+                {button.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </motion.div>
@@ -141,7 +152,7 @@ const ThreeDCarousel = ({
   onRightButtonClick,
 }: ThreeDCarouselProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [direction, setDirection] = useState(0); // -1 for left, 1 for right, 0 for initial
+  const [direction, setDirection] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
   const { t, lang } = useI18n();
 
@@ -149,6 +160,8 @@ const ThreeDCarousel = ({
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
   const carouselRef = useRef<HTMLDivElement>(null);
+
+  const isRTL = lang === 'ar';
 
   // Convert your images to stories data with proper translated names
   const storiesData: Story[] = images.map((imageUrl, index) => ({
@@ -172,12 +185,12 @@ const ThreeDCarousel = ({
   };
 
   const goToNext = () => {
-    setDirection(1); // Right direction
+    setDirection(1);
     setActiveIndex((current) => (current + 1) % storiesData.length);
   };
 
   const goToPrev = () => {
-    setDirection(-1); // Left direction
+    setDirection(-1);
     setActiveIndex((current) => (current - 1 + storiesData.length) % storiesData.length);
   };
 
@@ -187,24 +200,47 @@ const ThreeDCarousel = ({
     setActiveIndex(index);
   };
 
-  // Enhanced touch gesture handlers
-  const handleTouchStart = (e: React.TouchEvent<Element> | TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
+  // Unified touch and mouse event handlers
+  const handleDragStart = (clientX: number) => {
+    touchStartX.current = clientX;
     setIsSwiping(true);
   };
 
-  const handleTouchMove = (e: React.TouchEvent<Element> | TouchEvent) => {
+  const handleDragMove = (clientX: number) => {
     if (!isSwiping) return;
-    touchEndX.current = e.touches[0].clientX;
+    touchEndX.current = clientX;
     
-    // Optional: Add visual feedback during swipe
     const diffX = touchStartX.current - touchEndX.current;
     if (carouselRef.current && Math.abs(diffX) > 10) {
       carouselRef.current.style.cursor = 'grabbing';
     }
   };
 
-  const handleTouchEnd = (e?: React.TouchEvent<Element> | TouchEvent) => {
+  // Touch event handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches && e.touches[0]) {
+      handleDragStart(e.touches[0].clientX);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (e.touches && e.touches[0]) {
+      handleDragMove(e.touches[0].clientX);
+    }
+  };
+
+  // Mouse event handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    handleDragStart(e.clientX);
+    e.preventDefault();
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    handleDragMove(e.clientX);
+    e.preventDefault();
+  };
+
+  const handleDragEnd = () => {
     if (!isSwiping) return;
     
     setIsSwiping(false);
@@ -216,34 +252,47 @@ const ThreeDCarousel = ({
     if (!touchStartX.current || !touchEndX.current) return;
 
     const diffX = touchStartX.current - touchEndX.current;
-    const minSwipeDistance = 30; // Reduced for better sensitivity
+    const minSwipeDistance = 30;
 
-    // Only trigger if swipe distance is sufficient
     if (Math.abs(diffX) > minSwipeDistance) {
-      if (diffX > 0) {
-        // Swipe left - go to next
-        goToNext();
+      // FIXED: Invert swipe direction for RTL languages
+      if (isRTL) {
+        // For RTL: Swipe left goes to previous, swipe right goes to next
+        if (diffX > 0) {
+          goToPrev(); // Swipe left in RTL = go to previous
+        } else {
+          goToNext(); // Swipe right in RTL = go to next
+        }
       } else {
-        // Swipe right - go to previous
-        goToPrev();
+        // For LTR: Normal behavior
+        if (diffX > 0) {
+          goToNext(); // Swipe left in LTR = go to next
+        } else {
+          goToPrev(); // Swipe right in LTR = go to previous
+        }
       }
     }
 
-    // Reset values
     touchStartX.current = 0;
     touchEndX.current = 0;
   };
 
   // Click handlers for side cards
   const handleSideCardClick = (position: 'left' | 'right') => {
-    if (position === 'left') {
-      goToPrev();
-    } else if (position === 'right') {
-      goToNext();
+    if (isRTL) {
+      if (position === 'left') {
+        goToNext();
+      } else if (position === 'right') {
+        goToPrev();
+      }
+    } else {
+      if (position === 'left') {
+        goToPrev();
+      } else if (position === 'right') {
+        goToNext();
+      }
     }
   };
-
-  // REMOVED: Auto-play functionality completely
 
   // Reset active index when language changes
   useEffect(() => {
@@ -253,10 +302,12 @@ const ThreeDCarousel = ({
 
   const visibleCards = getVisibleCards();
 
-  // Animation variants for smooth scrolling
+  // Animation variants for smooth scrolling - handle RTL direction
   const cardVariants = {
     enter: (direction: number) => ({
-      x: direction > 0 ? 300 : -300,
+      x: isRTL ? 
+        (direction > 0 ? -300 : 300) : 
+        (direction > 0 ? 300 : -300),
       opacity: 0,
       scale: 0.8
     }),
@@ -266,7 +317,9 @@ const ThreeDCarousel = ({
       scale: 1
     },
     exit: (direction: number) => ({
-      x: direction < 0 ? 300 : -300,
+      x: isRTL ? 
+        (direction < 0 ? -300 : 300) : 
+        (direction < 0 ? 300 : -300),
       opacity: 0,
       scale: 0.8
     })
@@ -274,19 +327,32 @@ const ThreeDCarousel = ({
 
   const sideCardVariants = {
     left: {
-      x: -140,
+      x: isRTL ? 140 : -140,
       opacity: 0.6,
       scale: 0.75
     },
     right: {
-      x: 140,
+      x: isRTL ? -140 : 140,
       opacity: 0.6,
       scale: 0.75
     }
   };
 
+  // Navigation arrow icons for RTL
+  const PrevIcon = () => (
+    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isRTL ? "M9 5l7 7-7 7" : "M15 19l-7-7 7-7"} />
+    </svg>
+  );
+
+  const NextIcon = () => (
+    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isRTL ? "M15 19l-7-7 7-7" : "M9 5l7 7-7 7"} />
+    </svg>
+  );
+
   return (
-    <div className="font-sans w-full py-12 md:py-20 flex flex-col items-center justify-center overflow-hidden">
+    <div className={`font-sans w-full py-12 md:py-20 flex flex-col items-center justify-center overflow-hidden ${isRTL ? 'rtl' : 'ltr'}`}>
       <div className="w-full max-w-6xl mx-auto px-2 sm:px-4">
         <header className="text-center mb-8 sm:mb-12">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-black dark:text-white px-2">
@@ -303,122 +369,11 @@ const ThreeDCarousel = ({
           className="relative h-[420px] sm:h-[500px] flex items-center justify-center overflow-visible cursor-grab active:cursor-grabbing"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-          // Add mouse drag support for desktop touch devices
-          onMouseDown={(e: React.MouseEvent) => {
-            // Create a synthetic touch point
-            const touchPoint = new Touch({
-              identifier: Date.now(),
-              target: e.currentTarget,
-              clientX: e.clientX,
-              clientY: e.clientY,
-              screenX: e.screenX,
-              screenY: e.screenY,
-              pageX: e.pageX,
-              pageY: e.pageY,
-            });
-
-            // Create a synthetic touch event
-            const touchEvent = new TouchEvent('touchstart', {
-              bubbles: true,
-              cancelable: true,
-              touches: [touchPoint],
-              targetTouches: [touchPoint],
-              changedTouches: [touchPoint],
-              shiftKey: e.shiftKey,
-              ctrlKey: e.ctrlKey,
-              altKey: e.altKey,
-              metaKey: e.metaKey,
-            });
-
-            handleTouchStart(touchEvent as unknown as React.TouchEvent<Element>);
-          }}
-          onMouseMove={(e: React.MouseEvent) => {
-            if (!isSwiping) return;
-            
-            // Create a synthetic touch point
-            const touchPoint = new Touch({
-              identifier: Date.now(),
-              target: e.currentTarget,
-              clientX: e.clientX,
-              clientY: e.clientY,
-              screenX: e.screenX,
-              screenY: e.screenY,
-              pageX: e.pageX,
-              pageY: e.pageY,
-            });
-
-            // Create a synthetic touch event
-            const touchEvent = new TouchEvent('touchmove', {
-              bubbles: true,
-              cancelable: true,
-              touches: [touchPoint],
-              targetTouches: [touchPoint],
-              changedTouches: [touchPoint],
-              shiftKey: e.shiftKey,
-              ctrlKey: e.ctrlKey,
-              altKey: e.altKey,
-              metaKey: e.metaKey,
-            });
-
-            handleTouchMove(touchEvent as unknown as React.TouchEvent<Element>);
-          }}
-          onMouseUp={(e: React.MouseEvent) => {
-            // Create a synthetic touch point
-            const touchPoint = new Touch({
-              identifier: Date.now(),
-              target: e.currentTarget,
-              clientX: e.clientX,
-              clientY: e.clientY,
-              screenX: e.screenX,
-              screenY: e.screenY,
-              pageX: e.pageX,
-              pageY: e.pageY,
-            });
-
-            // Create a synthetic touch event
-            const touchEvent = new TouchEvent('touchend', {
-              bubbles: true,
-              cancelable: true,
-              touches: [],
-              targetTouches: [],
-              changedTouches: [touchPoint],
-              shiftKey: e.shiftKey,
-              ctrlKey: e.ctrlKey,
-              altKey: e.altKey,
-              metaKey: e.metaKey,
-            });
-
-            handleTouchEnd(touchEvent as unknown as React.TouchEvent<Element>);
-          }}
-          onMouseLeave={(e: React.MouseEvent) => {
-            // Create a synthetic touch point
-            const touchPoint = new Touch({
-              identifier: Date.now(),
-              target: e.currentTarget,
-              clientX: e.clientX,
-              clientY: e.clientY,
-              screenX: e.screenX,
-              screenY: e.screenY,
-              pageX: e.pageX,
-              pageY: e.pageY,
-            });
-
-            // Create a synthetic touch event
-            const touchEvent = new TouchEvent('touchend', {
-              bubbles: true,
-              cancelable: true,
-              touches: [],
-              targetTouches: [],
-              changedTouches: [touchPoint],
-              shiftKey: e.shiftKey,
-              ctrlKey: e.ctrlKey,
-              altKey: e.altKey,
-              metaKey: e.metaKey,
-            });
-
-            handleTouchEnd(touchEvent as unknown as React.TouchEvent<Element>);
-          }} // Handle case when mouse leaves during drag
+          onTouchEnd={handleDragEnd}
+          onMouseDown={handleMouseDown}
+          onMouseMove={isSwiping ? handleMouseMove : undefined}
+          onMouseUp={handleDragEnd}
+          onMouseLeave={handleDragEnd}
         >
           {/* Cards Container */}
           <div className="flex items-center justify-center relative w-full overflow-visible">
@@ -426,7 +381,7 @@ const ThreeDCarousel = ({
               {visibleCards.map(({ story, position }) => (
                 <motion.div
                   key={`${story.id}-${position}-${lang}`}
-                  className="absolute overflow-visible select-none" // Prevent text selection during swipe
+                  className="absolute overflow-visible select-none"
                   custom={direction}
                   variants={position === 'center' ? cardVariants : sideCardVariants}
                   initial={position === 'center' ? "enter" : position}
@@ -448,6 +403,7 @@ const ThreeDCarousel = ({
                     onRightClick={onRightButtonClick ? () => onRightButtonClick(story.id - 1, story.imageUrl) : undefined}
                     isActive={position === 'center'}
                     position={position}
+                    isRTL={isRTL}
                   />
                 </motion.div>
               ))}
@@ -457,15 +413,12 @@ const ThreeDCarousel = ({
 
         {/* Navigation Controls at Bottom */}
         <div className="flex items-center justify-center mt-6 sm:mt-8 space-x-4 sm:space-x-6">
-          {/* Previous Button */}
           <button
             onClick={goToPrev}
             className="p-2 sm:p-3 rounded-full bg-white/80 dark:bg-gray-800/80 shadow-lg hover:bg-white dark:hover:bg-gray-700 transition-colors backdrop-blur border border-gray-200 dark:border-gray-600"
-            aria-label="Previous vehicle"
+            aria-label={isRTL ? "Next vehicle" : "Previous vehicle"}
           >
-            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
+            <PrevIcon />
           </button>
 
           {/* Dot Indicators */}
@@ -484,15 +437,12 @@ const ThreeDCarousel = ({
             ))}
           </div>
 
-          {/* Next Button */}
           <button
             onClick={goToNext}
             className="p-2 sm:p-3 rounded-full bg-white/80 dark:bg-gray-800/80 shadow-lg hover:bg-white dark:hover:bg-gray-700 transition-colors backdrop-blur border border-gray-200 dark:border-gray-600"
-            aria-label="Next vehicle"
+            aria-label={isRTL ? "Previous vehicle" : "Next vehicle"}
           >
-            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
+            <NextIcon />
           </button>
         </div>
 
@@ -507,7 +457,7 @@ const ThreeDCarousel = ({
             }}
           >
             {t('orderNow')}
-            <span className="inline-block transition-transform duration-300 group-hover:translate-x-1 ml-1">
+            <span className={`inline-block transition-transform duration-300 group-hover:translate-x-1 ml-1 ${isRTL ? 'rotate-180' : ''}`}>
               &rarr;
             </span>
           </a>
