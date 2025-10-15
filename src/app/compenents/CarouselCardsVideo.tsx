@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, type PanInfo } from "framer-motion";
 
 interface Story {
   id: number;
@@ -13,17 +13,17 @@ const storiesData: Story[] = [
   {
     id: 1,
     videoUrl: "/videos/video1.mp4", // Replace with your actual video file
-    title: "Adventure Awaits",
+    title: "Buy one for your real  big car",
   },
   {
     id: 2,
     videoUrl: "/videos/video2.mp4", // Replace with your actual video file
-    title: "Mountain Journey",
+    title: "Led Detector Effect ",
   },
   {
     id: 3,
     videoUrl: "/videos/video3.mp4", // Replace with your actual video file
-    title: "Ocean Dreams",
+    title: "Our Packaging",
   },
 ];
 
@@ -193,7 +193,10 @@ export default function CarouselCards() {
   }, [currentIndex]);
 
   // Handle drag end to update current index
-  const handleDragEnd = (event: any, info: { offset: { x: number }; velocity: { x: number } }) => {
+  const handleDragEnd = (
+    event: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo
+  ) => {
     const threshold = 50;
     
     if (info.offset.x < -threshold || info.velocity.x < -500) {
@@ -208,10 +211,10 @@ export default function CarouselCards() {
       <div className="w-full max-w-7xl mx-auto">
         <header className="text-center mb-8 sm:mb-12">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-black dark:text-white">
-            Explore Worlds
+            Explore Our Products Values
           </h1>
           <p className="mt-3 sm:mt-4 text-base sm:text-lg text-gray-400">
-            Drag to journey through magical landscapes.
+            Video Section
           </p>
         </header>
 
@@ -300,7 +303,7 @@ export default function CarouselCards() {
             href="#"
             className="text-gray-300 font-semibold hover:text-white transition-colors duration-300 group text-sm sm:text-base"
           >
-            Discover More
+            Go To Buy One 
             <span className="inline-block transition-transform duration-300 group-hover:translate-x-1 ml-1">
               &rarr;
             </span>

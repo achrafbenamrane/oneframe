@@ -148,8 +148,9 @@ export default function Home() {
       </main>
 
       {/* Newsletter Section */}
+      <CarouselCardsVideo/>
       <Newsletter />
-<CarouselCardsVideo/>
+
       <Footer />
     </div>
   );

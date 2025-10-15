@@ -29,7 +29,7 @@ const itemVariants: Variants = {
 };
 
 const Newsletter = () => {
-  const { t, lang } = useI18n();
+  const { lang } = useI18n();
   const [phoneError, setPhoneError] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -78,7 +78,7 @@ const Newsletter = () => {
   };
 
   return (
-    <div className="relative w-full py-8 sm:py-12 md:py-16 flex items-center justify-center overflow-hidden p-3 sm:p-4 bg-white/80 dark:bg-[url(/emailbg.jpg)] bg-cover bg-center dark:bg-cover dark:bg-center backdrop-blur-sm transition-colors duration-300">
+    <div className="relative w-full mb-8 py-8 sm:py-12 md:py-16 flex items-center justify-center overflow-hidden p-3 sm:p-4 bg-white/80 dark:bg-[url(/emailbg.jpg)] bg-cover bg-center dark:bg-cover dark:bg-center backdrop-blur-sm transition-colors duration-300">
       <motion.div
         className={`relative z-10 container mx-auto text-center max-w-3xl ${lang === 'ar' ? 'rtl' : 'ltr'}`}
         variants={containerVariants}
