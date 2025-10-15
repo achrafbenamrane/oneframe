@@ -16,9 +16,16 @@ interface ProductDetailsProps {
 
 
 const ProductDetails: React.FC<ProductDetailsProps> = ({ id, title, price, description, images = [], onBuy, onClose }) => {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [visible, setVisible] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  const formattedPrice = typeof price === 'number'
+    ? `${new Intl.NumberFormat(lang === 'ar' ? 'ar-DZ' : 'en-DZ', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(price)} ${t('priceSymbol')}`
+    : price;
 
   const handleClose = () => {
     if (onClose) {
@@ -134,10 +141,15 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ id, title, price, descr
             {description}
           </p>
 
-          <div className="mt-4 flex items-center justify-between">
-            <span className="px-3 py-1.5 rounded-full bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100 text-sm font-semibold border border-gray-200 dark:border-gray-700">
-              {t('priceSymbol')}{typeof price === 'number' ? price.toFixed(2) : price}
-            </span>
+          <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="px-3 py-1.5 rounded-full bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300 text-sm font-semibold border border-green-200 dark:border-green-800">
+                {formattedPrice}
+              </span>
+              <span className="inline-flex items-center px-2 py-1 rounded-full bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300 text-xs font-semibold">
+                {t('freeDeliveryBadge')}
+              </span>
+            </div>
             <button
               onClick={onBuy}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-black text-white hover:bg-gray-900 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 transition-colors shadow"

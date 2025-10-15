@@ -6,12 +6,12 @@ import wilayasData from "../data/wilayas.json";
 
 // Simple price map in DZD to match the form's currency
 const PRICE_MAP: Record<string, number> = {
-  "van": 2900,
-  "camaro": 3200,
-  "land rover": 2800,
-  "bike": 1800,
-  "f1": 15000,
-  "mercedes gtr": 4500,
+  "van": 6400,
+  "camaro": 6400,
+  "land rover": 6400,
+  "bike": 6400,
+  "f1": 6400,
+  "mercedes gtr": 6400,
 };
 
 // Ensure wilayas are ordered as in the JSON file (by code)
@@ -42,12 +42,13 @@ const VEHICLES = [
 ];
 
 function formatDA(amount: number | null, lang: "en" | "ar") {
-  if (amount == null) return lang === "ar" ? "؟" : "?";
+  if (amount == null) return "—";
   const formatted = new Intl.NumberFormat(lang === "ar" ? "ar-DZ" : "en-DZ", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(amount);
-  return `DA ${formatted} DZD`;
+  const suffix = lang === "ar" ? " دج" : " DA";
+  return `${formatted}${suffix}`;
 }
 
 export default function OrderForm({ defaultProductId }: { defaultProductId?: string }) {
@@ -98,14 +99,10 @@ export default function OrderForm({ defaultProductId }: { defaultProductId?: str
     return PRICE_MAP[selectedProduct] ?? null;
   }, [selectedProduct]);
 
-  const deliveryPrice = useMemo(() => {
-    // Only known after a wilaya is chosen; example flat price
-    if (!wilaya) return null;
-    return 400; // DZD flat example
-  }, [wilaya]);
+  const deliveryPrice = useMemo(() => 0, []);
 
   const total = useMemo(() => {
-    if (productPrice == null || deliveryPrice == null) return null;
+    if (productPrice == null) return null;
     return productPrice + deliveryPrice;
   }, [productPrice, deliveryPrice]);
 
@@ -326,7 +323,14 @@ export default function OrderForm({ defaultProductId }: { defaultProductId?: str
           </div>
           <div className={`flex items-center justify-between mt-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
             <span className="text-sm sm:text-base text-gray-700 dark:text-gray-300 font-semibold">{t('deliveryPriceLabel')}</span>
-            <span className="text-sm sm:text-base text-gray-900 dark:text-gray-100">{formatDA(deliveryPrice, lang)}</span>
+            <span className="flex items-center gap-2 text-sm sm:text-base text-gray-900 dark:text-gray-100">
+              {formatDA(deliveryPrice, lang)}
+              {deliveryPrice === 0 && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300 text-xs sm:text-sm font-semibold">
+                  {t('freeDeliveryBadge')}
+                </span>
+              )}
+            </span>
           </div>
           <div className="my-3 h-px bg-gray-200 dark:bg-gray-800" />
           <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>

@@ -19,7 +19,7 @@ export default function TabsViewClassic() {
           alt="LED"
           width={40}
           height={40}
-          className="w-10 h-10 object-contain"
+          className="w-14 h-14 object-contain"
         />
       ),
       color: 'bg-blue-600',
@@ -34,7 +34,7 @@ export default function TabsViewClassic() {
           alt="Frame"
           width={40}
           height={40}
-          className="w-10 h-10 object-contain"
+          className="w-14 h-14 object-contain"
         />
       ),
       color: 'bg-blue-600',
@@ -49,7 +49,7 @@ export default function TabsViewClassic() {
           alt="Artwork Base"
           width={40}
           height={40}
-          className="w-10 h-10 object-contain"
+          className="w-14 h-14 object-contain"
         />
       ),
       color: 'bg-blue-600',

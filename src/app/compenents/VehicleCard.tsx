@@ -30,6 +30,10 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
   const { t, lang } = useI18n();
   // Only use the first image for the carousel card preview
   const image = images && images.length > 0 ? images[0] : '';
+  const formattedPrice = `${new Intl.NumberFormat(lang === 'ar' ? 'ar-DZ' : 'en-DZ', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(price)} ${t('priceSymbol')}`;
   return (
     <motion.div
       layout
@@ -64,11 +68,16 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
           {description}
         </p>
 
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-5">
-          <span className="text-3xl sm:text-4xl font-bold text-blue-600 dark:text-blue-400 text-center sm:text-left">
-            ${price.toLocaleString(lang === 'ar' ? 'ar-DZ' : 'en-DZ')}
-          </span>
-          <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full self-center sm:self-auto">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+          <div className="flex flex-col items-center sm:items-start gap-1">
+            <span className="text-3xl sm:text-4xl font-bold text-[#15803d] dark:text-[#22c55e]">
+              {formattedPrice}
+            </span>
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300 text-xs sm:text-sm font-semibold">
+              {t('freeDeliveryBadge')}
+            </span>
+          </div>
+          <span className="text-xs sm:text-sm text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/60 px-2 py-1 rounded-full self-center sm:self-auto">
             {t('idLabel')}: {id}
           </span>
         </div>

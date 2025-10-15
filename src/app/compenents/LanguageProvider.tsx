@@ -22,7 +22,7 @@ const dict: Dict = {
   orderSentSuccess: { en: 'Order sent successfully!', ar: 'تم إرسال الطلب بنجاح!' },
   bestSeller: { en: 'Best Seller', ar: 'الأكثر مبيعًا' },
   ownIt: { en: 'Own it', ar: 'امتلكه' },
-  priceSymbol: { en: '$', ar: '$' },
+  priceSymbol: { en: 'DA', ar: 'دج' },
   carouselPlaceholder: { en: 'Carousel placeholder', ar: 'معرض الصور' },
   productTitle: { en: 'Nike Airforce1 Premium', ar: 'نايك ايرفورس1 بريميوم' },
   productDescription: {
@@ -41,6 +41,7 @@ const dict: Dict = {
   productPriceLabel: { en: 'Product price', ar: 'سعر المنتج' },
   deliveryPriceLabel: { en: 'Delivery price', ar: 'سعر التوصيل' },
   totalPriceLabel: { en: 'Total price', ar: 'السعر الإجمالي' },
+  freeDeliveryBadge: { en: 'Free delivery', ar: 'توصيل مجاني' },
   confirmOrder: { en: 'Confirm order', ar: 'تأكيد الطلب' },
   vehicleLabel: { en: 'Vehicle', ar: 'نوع المركبة' },
   vehiclePlaceholder: { en: 'Selected vehicle', ar: 'نوع المركبة المختار' },

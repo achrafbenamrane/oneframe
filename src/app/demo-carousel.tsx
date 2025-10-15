@@ -12,8 +12,7 @@ const vehicles: VehicleCardProps[] = VEHICLE_TYPES.map((v) => ({
   images: ['/van.png'], // CHANGED: Use images array instead of image
   description:
     'High-performance, precision-built frame engineered for safety and control. Designed for all terrains and use cases.',
-  price:
-    v.id === 'f1' ? 15000 : v.id === 'mercedes-gtr' ? 4500 : v.id === 'camaro' ? 3200 : v.id === 'land-rover' ? 2800 : v.id === 'bike' ? 1800 : 2500,
+  price: 6400,
 }));
 
 const DemoCarouselPage: React.FC = () => {

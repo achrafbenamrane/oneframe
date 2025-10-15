@@ -39,42 +39,42 @@ export default function Home() {
     { 
       id: 'van', 
       nameKey: 'van' as TranslationKey,
-      price: 2500, 
+      price: 6400, 
       descriptionKey: 'vanDescription' as TranslationKey,
       image: '/Van.jpg'
     },
     { 
       id: 'camaro', 
       nameKey: 'camaro' as TranslationKey,
-      price: 3200, 
+      price: 6400, 
       descriptionKey: 'camaroDescription' as TranslationKey,
       image: '/Camaro.jpg'
     },
     { 
       id: 'land rover', 
       nameKey: 'landRover' as TranslationKey,
-      price: 2800, 
+      price: 6400, 
       descriptionKey: 'landRoverDescription' as TranslationKey,
       image: '/Brezina.jpg'
     },
     { 
       id: 'bike', 
       nameKey: 'bike' as TranslationKey,
-      price: 1800, 
+      price: 6400, 
       descriptionKey: 'bikeDescription' as TranslationKey,
       image: '/Bike.jpg'
     },
     { 
       id: 'f1', 
       nameKey: 'f1' as TranslationKey,
-      price: 15000, 
+      price: 6400, 
       descriptionKey: 'f1Description' as TranslationKey,
       image: '/f1.jpg'
     },
     { 
       id: 'mercedes gtr', 
       nameKey: 'mercedesGTR' as TranslationKey,
-      price: 4500, 
+      price: 6400, 
       descriptionKey: 'mercedesGTRDescription' as TranslationKey,
       image: '/Mercedes.jpg'
     },
