@@ -89,8 +89,8 @@ const StoryCard = ({ story, isActive = false }: { story: Story; isActive?: boole
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent rounded-2xl"></div>
       {/* Subtle inner border to blend with background */}
       <div className="absolute inset-0 rounded-2xl ring-1 ring-white/20 dark:ring-gray-900/20 pointer-events-none" />
-      <div className="relative z-10 flex flex-col justify-end h-full p-4 sm:p-6 text-white">
-  <h3 className="font-bold text-xl sm:text-2xl tracking-wide">{t(story.title as any)}</h3>
+    <div className="relative z-10 flex flex-col justify-end h-full p-4 sm:p-6 text-white">
+  <h3 className="font-bold text-xl sm:text-2xl tracking-wide">{t(story.title)}</h3>
         {/* Video play indicator */}
         <div className="flex items-center mt-2 text-xs sm:text-sm opacity-80">
           <div className={`w-2 h-2 rounded-full mr-2 ${isActive ? 'bg-green-400 animate-pulse' : 'bg-gray-400'}`}></div>
