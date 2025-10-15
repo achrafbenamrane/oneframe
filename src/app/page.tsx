@@ -10,6 +10,7 @@ import Footer from "./compenents/Footer";
 import Newsletter from "./compenents/Newsletter";
 import { useI18n } from "./compenents/LanguageProvider";
 import CarouselCardsVideo from "./compenents/CarouselCardsVideo";
+import TabsViewClassic from "./compenents/TabsViewClassic";
 
 
 // Define the valid translation keys
@@ -120,7 +121,7 @@ export default function Home() {
           onLeftButtonClick={(i) => setAndScroll(VEHICLE_IDS[i])}
           onRightButtonClick={(i, src) => openDetails(i, src)}
         />
-
+<TabsViewClassic/>
         <h1 className="flex justify-center items-center text-2xl sm:text-3xl text-gray-800 dark:text-gray-200 font-bold mt-8 mb-6">{t('makeOrderTitle')}</h1>
         <section id="order-form-section" className="w-full flex justify-center mb-12">
           <OrderForm defaultProductId={selectedProductId} />

@@ -47,7 +47,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ id, title, price, descr
                 <button
                   className="absolute left-2 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-900 rounded-full p-2 sm:p-3 shadow text-2xl sm:text-3xl opacity-80 hover:opacity-100 transition group-hover:opacity-100 focus:opacity-100"
                   onClick={showPrev}
-                  aria-label="Previous image"
+                  aria-label={t('previousImage')}
                   type="button"
                   style={{display: 'block'}}
                 >
@@ -73,7 +73,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ id, title, price, descr
                 <button
                   className="absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-900 rounded-full p-2 sm:p-3 shadow text-2xl sm:text-3xl opacity-80 hover:opacity-100 transition group-hover:opacity-100 focus:opacity-100"
                   onClick={showNext}
-                  aria-label="Next image"
+                  aria-label={t('nextImage')}
                   type="button"
                   style={{display: 'block'}}
                 >
@@ -83,8 +83,8 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ id, title, price, descr
             </div>
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 text-sm">
-              <div>No image available</div>
-              <div className="text-xs mt-2">Expected: {images[0]}</div>
+              <div>{t('noImage')}</div>
+              <div className="text-xs mt-2">{t('expected')} {images[0]}</div>
             </div>
           )}
 
@@ -99,7 +99,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ id, title, price, descr
           <div className="absolute top-3 right-3 z-10">
             <button
               type="button"
-              aria-label="Close"
+              aria-label={t('close')}
               onClick={handleClose}
               className="w-8 h-8 rounded-full bg-white/90 dark:bg-gray-900 flex items-center justify-center text-gray-900 dark:text-gray-100 text-lg font-bold shadow hover:bg-gray-200 dark:hover:bg-gray-800 transition"
             >

@@ -397,8 +397,8 @@ const ThreeDCarousel = ({
                 >
                   <StoryCard 
                     story={story}
-                    leftLabel={leftButtonLabel}
-                    rightLabel={rightButtonLabel}
+                    leftLabel={leftButtonLabel ?? t('details')}
+                    rightLabel={rightButtonLabel ?? t('buy')}
                     onLeftClick={onLeftButtonClick ? () => onLeftButtonClick(story.id - 1, story.imageUrl) : undefined}
                     onRightClick={onRightButtonClick ? () => onRightButtonClick(story.id - 1, story.imageUrl) : undefined}
                     isActive={position === 'center'}
@@ -432,7 +432,7 @@ const ThreeDCarousel = ({
                     ? 'bg-cyan-500 scale-125'
                     : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400'
                 }`}
-                aria-label={`Go to vehicle ${index + 1}`}
+                aria-label={`${t('goToCard')} ${index + 1}`}
               />
             ))}
           </div>

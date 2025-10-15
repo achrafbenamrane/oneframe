@@ -4,6 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import Button from './Button';
+import { useI18n } from './LanguageProvider';
 
 export interface VehicleCardProps {
   id: string; // stable id (e.g., 'van', 'camaro')
@@ -26,6 +27,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
   onDetails,
   isActive = false,
 }) => {
+  const { t, lang } = useI18n();
   // Only use the first image for the carousel card preview
   const image = images && images.length > 0 ? images[0] : '';
   return (
@@ -64,19 +66,19 @@ const VehicleCard: React.FC<VehicleCardProps> = ({
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-5">
           <span className="text-3xl sm:text-4xl font-bold text-blue-600 dark:text-blue-400 text-center sm:text-left">
-            ${price.toLocaleString()}
+            ${price.toLocaleString(lang === 'ar' ? 'ar-DZ' : 'en-DZ')}
           </span>
           <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full self-center sm:self-auto">
-            ID: {id}
+            {t('idLabel')}: {id}
           </span>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3">
           <Button onClick={() => onBuy?.(id)} variant="primary" className="text-base py-3 sm:flex-[2]">
-            Buy Now
+            {t('buyNow')}
           </Button>
           <Button onClick={() => onDetails?.(id)} variant="secondary" className="text-base py-3 sm:flex-[1]">
-            Details
+            {t('details')}
           </Button>
         </div>
       </div>

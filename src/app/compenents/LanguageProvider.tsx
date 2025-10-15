@@ -47,9 +47,18 @@ const dict: Dict = {
   selectVehicleFirst: { en: 'Please select a vehicle first.', ar: 'يرجى اختيار نوع المركبة أولاً.' },
 
   // NEW: Carousel specific translations
-  exploreVehicles: { en: 'OneFrame for One Algerian Owner', ar: ' '},
+  exploreVehicles: { en: 'OneFrame for One Algerian Owner', ar: 'ون فريم لمالك جزائري واحد' },
   dragToBrowse: { en: 'When u buy One of OneFrame products you gonna be the One algerian , the One owner and the Only  One  who have this product ', ar: 'اسحب لتصفح مجموعتنا' },
   orderNow: { en: 'Order Now', ar: 'اطلب الآن' },
+  discoverMore: { en: 'Discover More', ar: 'اكتشف المزيد' },
+  hoverToPlay: { en: 'Hover to play', ar: 'مرّر للتشغيل' },
+  playing: { en: 'Playing', ar: 'قيد التشغيل' },
+  previousCard: { en: 'Previous card', ar: 'البطاقة السابقة' },
+  nextCard: { en: 'Next card', ar: 'البطاقة التالية' },
+  goToCard: { en: 'Go to card', ar: 'اذهب إلى البطاقة' },
+  videoSectionTitle: { en: 'Explore Our Products Values', ar: 'استكشف قيم منتجاتنا' },
+  videoSectionSubtitle: { en: 'Video Section', ar: 'قسم الفيديو' },
+  goToBuyOne: { en: 'Go To Buy One', ar: 'اذهب للشراء' },
   
   // NEW: Specific vehicle names
   van: { en: 'VanLife', ar: 'فان' },
@@ -84,6 +93,34 @@ const dict: Dict = {
     en: 'High-performance sports car with luxury features and track-ready capabilities. The ultimate driving machine.', 
     ar: 'سيارة رياضية عالية الأداء بميزات فاخرة وإمكانيات جاهزة للمسار. آلة القيادة المثالية.' 
   },
+
+  // Footer and shared UI
+  contactUs: { en: 'Contact Us', ar: 'اتصل بنا' },
+  followUs: { en: 'Follow Us', ar: 'تابعنا' },
+  brandTagline: { 
+    en: 'OneFrame is a creative brand where every frame captures emotion, depth, and imagination — transforming 3D art into stories you can see, feel, and connect with', 
+    ar: 'ون فريم علامة إبداعية حيث يلتقط كل إطار الإحساس والعمق والخيال — نحول الفن ثلاثي الأبعاد إلى قصص يمكن رؤيتها والشعور بها والارتباط بها' 
+  },
+  facebook: { en: 'Facebook', ar: 'فيسبوك' },
+  instagram: { en: 'Instagram', ar: 'إنستغرام' },
+  tiktok: { en: 'TikTok', ar: 'تيك توك' },
+  idLabel: { en: 'ID', ar: 'المعرّف' },
+  noProducts: { en: 'No products available', ar: 'لا توجد منتجات متاحة' },
+  previousProduct: { en: 'Previous product', ar: 'المنتج السابق' },
+  nextProduct: { en: 'Next product', ar: 'المنتج التالي' },
+  goToSlide: { en: 'Go to slide', ar: 'اذهب إلى الشريحة' },
+  ofLabel: { en: 'of', ar: 'من' },
+  // Product details modal
+  close: { en: 'Close', ar: 'إغلاق' },
+  previousImage: { en: 'Previous image', ar: 'الصورة السابقة' },
+  nextImage: { en: 'Next image', ar: 'الصورة التالية' },
+  noImage: { en: 'No image available', ar: 'لا توجد صورة متاحة' },
+  expected: { en: 'Expected:', ar: 'المتوقّع:' },
+
+  // Video card specific titles
+  videoCard1Title: { en: 'Buy one for your real big car', ar: 'اشترِ واحدًا لسيارتك الكبيرة' },
+  videoCard2Title: { en: 'LED Detector Effect', ar: 'تأثير مستشعر LED' },
+  videoCard3Title: { en: 'Our Packaging', ar: 'التغليف الخاص بنا' },
 };
 
 interface LanguageContextValue {

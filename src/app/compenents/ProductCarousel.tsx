@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CarouselCard from './CarouselCard';
+import { useI18n } from './LanguageProvider';
 
 export interface Product {
   id: string;
@@ -27,6 +28,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({
   autoPlay = true,
   autoPlayInterval = 3000
 }) => {
+  const { t, lang } = useI18n();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -58,7 +60,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({
   if (products.length === 0) {
     return (
       <div className="flex items-center justify-center h-96">
-        <p className="text-gray-500 dark:text-gray-400">No products available</p>
+        <p className="text-gray-500 dark:text-gray-400">{t('noProducts')}</p>
       </div>
     );
   }
@@ -99,7 +101,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({
             <button
               onClick={goToPrevious}
               className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 p-2 sm:p-3 rounded-full bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-800 shadow-lg hover:shadow-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
-              aria-label="Previous product"
+              aria-label={t('previousProduct')}
             >
               <svg
                 className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700 dark:text-gray-300"
@@ -119,7 +121,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({
             <button
               onClick={goToNext}
               className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 p-2 sm:p-3 rounded-full bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-800 shadow-lg hover:shadow-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
-              aria-label="Next product"
+              aria-label={t('nextProduct')}
             >
               <svg
                 className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700 dark:text-gray-300"
@@ -151,7 +153,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({
                   ? 'bg-blue-600 dark:bg-blue-400 scale-125'
                   : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'
               }`}
-              aria-label={`Go to slide ${index + 1}`}
+              aria-label={`${t('goToSlide')} ${index + 1}`}
             />
           ))}
         </div>
@@ -160,7 +162,7 @@ const ProductCarousel: React.FC<ProductCarouselProps> = ({
       {/* Product Counter */}
       <div className="text-center mt-4">
         <span className="text-sm text-gray-500 dark:text-gray-400">
-          {currentIndex + 1} of {products.length}
+          {lang === 'ar' ? `${products.length} ${t('ofLabel')} ${currentIndex + 1}` : `${currentIndex + 1} ${t('ofLabel')} ${products.length}`}
         </span>
       </div>
     </div>

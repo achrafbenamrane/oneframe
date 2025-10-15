@@ -1,11 +1,14 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import { motion, type PanInfo } from "framer-motion";
+import { useI18n } from "./LanguageProvider";
+
+type VideoTitleKey = 'videoCard1Title' | 'videoCard2Title' | 'videoCard3Title';
 
 interface Story {
   id: number;
   videoUrl: string;
-  title: string;
+  title: VideoTitleKey;
 }
 
 // Only 3 videos - replace these with your actual video file names
@@ -13,21 +16,22 @@ const storiesData: Story[] = [
   {
     id: 1,
     videoUrl: "/videos/video1.mp4", // Replace with your actual video file
-    title: "Buy one for your real  big car",
+    title: "videoCard1Title",
   },
   {
     id: 2,
     videoUrl: "/videos/video2.mp4", // Replace with your actual video file
-    title: "Led Detector Effect ",
+    title: "videoCard2Title",
   },
   {
     id: 3,
     videoUrl: "/videos/video3.mp4", // Replace with your actual video file
-    title: "Our Packaging",
+    title: "videoCard3Title",
   },
 ];
 
 const StoryCard = ({ story, isActive = false }: { story: Story; isActive?: boolean }) => {
+  const { t } = useI18n();
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -67,7 +71,7 @@ const StoryCard = ({ story, isActive = false }: { story: Story; isActive?: boole
                 <path d="M8 5v14l11-7z"/>
               </svg>
             </div>
-            <p className="text-white text-sm mt-2 font-medium">Hover to play</p>
+            <p className="text-white text-sm mt-2 font-medium">{t('hoverToPlay')}</p>
           </div>
         </div>
       )}
@@ -86,11 +90,11 @@ const StoryCard = ({ story, isActive = false }: { story: Story; isActive?: boole
       {/* Subtle inner border to blend with background */}
       <div className="absolute inset-0 rounded-2xl ring-1 ring-white/20 dark:ring-gray-900/20 pointer-events-none" />
       <div className="relative z-10 flex flex-col justify-end h-full p-4 sm:p-6 text-white">
-        <h3 className="font-bold text-xl sm:text-2xl tracking-wide">{story.title}</h3>
+  <h3 className="font-bold text-xl sm:text-2xl tracking-wide">{t(story.title as any)}</h3>
         {/* Video play indicator */}
         <div className="flex items-center mt-2 text-xs sm:text-sm opacity-80">
           <div className={`w-2 h-2 rounded-full mr-2 ${isActive ? 'bg-green-400 animate-pulse' : 'bg-gray-400'}`}></div>
-          {isActive ? 'Playing' : 'Hover to play'}
+          {isActive ? t('playing') : t('hoverToPlay')}
         </div>
       </div>
     </motion.div>
@@ -98,6 +102,7 @@ const StoryCard = ({ story, isActive = false }: { story: Story; isActive?: boole
 };
 
 export default function CarouselCards() {
+  const { t } = useI18n();
   const trackRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -211,10 +216,10 @@ export default function CarouselCards() {
       <div className="w-full max-w-7xl mx-auto">
         <header className="text-center mb-8 sm:mb-12">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-black dark:text-white">
-            Explore Our Products Values
+            {t('videoSectionTitle')}
           </h1>
           <p className="mt-3 sm:mt-4 text-base sm:text-lg text-gray-400">
-            Video Section
+            {t('videoSectionSubtitle')}
           </p>
         </header>
 
@@ -224,7 +229,7 @@ export default function CarouselCards() {
             onClick={prevCard}
             ref={leftBtnRef}
             className="absolute left-0 sm:left-2 top-1/2 -translate-y-1/2 z-30 bg-white/80 hover:bg-white backdrop-blur-sm rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200"
-            aria-label="Previous card"
+            aria-label={t('previousCard')}
           >
             <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -235,7 +240,7 @@ export default function CarouselCards() {
             onClick={nextCard}
             ref={rightBtnRef}
             className="absolute right-0 sm:right-2 top-1/2 -translate-y-1/2 z-30 bg-white/80 hover:bg-white backdrop-blur-sm rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200"
-            aria-label="Next card"
+            aria-label={t('nextCard')}
           >
             <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -293,7 +298,7 @@ export default function CarouselCards() {
                   ? 'bg-blue-500 scale-125' 
                   : 'bg-gray-300 hover:bg-gray-400'
               }`}
-              aria-label={`Go to card ${index + 1}`}
+              aria-label={`${t('goToCard')} ${index + 1}`}
             />
           ))}
         </div>
@@ -303,7 +308,7 @@ export default function CarouselCards() {
             href="#"
             className="text-gray-300 font-semibold hover:text-white transition-colors duration-300 group text-sm sm:text-base"
           >
-            Go To Buy One 
+            {t('goToBuyOne')}
             <span className="inline-block transition-transform duration-300 group-hover:translate-x-1 ml-1">
               &rarr;
             </span>
