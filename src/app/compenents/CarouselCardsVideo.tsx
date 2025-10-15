@@ -50,11 +50,14 @@ const StoryCard = ({ story, isActive = false }: { story: Story; isActive?: boole
 
   return (
     <motion.div
-      className={`relative w-64 h-80 sm:w-72 sm:h-96 flex-shrink-0 rounded-2xl overflow-hidden shadow-2xl group mx-2 transition-all duration-300 ${
-        isActive ? 'ring-4 ring-blue-500 shadow-2xl scale-105' : 'shadow-lg'
+      className={`relative w-64 h-[24rem] sm:w-72 sm:h-[28rem] md:w-80 md:h-[30rem] flex-shrink-0 rounded-2xl overflow-hidden group mx-2 transition-all duration-300 ${
+        isActive ? 'shadow-2xl' : 'shadow-lg'
       }`}
-      whileHover={{ y: -8, scale: 1.02, transition: { type: "spring", stiffness: 300 } }}
+      whileHover={{ y: -8, transition: { type: "spring", stiffness: 300 } }}
     >
+      {/* Soft blurred border halo matching background */}
+      <div className="absolute -inset-1 rounded-3xl bg-white/60 dark:bg-gray-900/60 blur-xl pointer-events-none" />
+
       {/* Video play indicator overlay */}
       {!isActive && (
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl">
@@ -64,7 +67,7 @@ const StoryCard = ({ story, isActive = false }: { story: Story; isActive?: boole
                 <path d="M8 5v14l11-7z"/>
               </svg>
             </div>
-            <p className="text-white text-sm mt-2 font-medium">Click to play</p>
+            <p className="text-white text-sm mt-2 font-medium">Hover to play</p>
           </div>
         </div>
       )}
@@ -77,9 +80,11 @@ const StoryCard = ({ story, isActive = false }: { story: Story; isActive?: boole
         playsInline
         preload="metadata"
         onError={handleVideoError}
-        className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 pointer-events-none rounded-2xl"
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 pointer-events-none rounded-2xl"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent rounded-2xl"></div>
+      {/* Subtle inner border to blend with background */}
+      <div className="absolute inset-0 rounded-2xl ring-1 ring-white/20 dark:ring-gray-900/20 pointer-events-none" />
       <div className="relative z-10 flex flex-col justify-end h-full p-4 sm:p-6 text-white">
         <h3 className="font-bold text-xl sm:text-2xl tracking-wide">{story.title}</h3>
         {/* Video play indicator */}
@@ -95,25 +100,62 @@ const StoryCard = ({ story, isActive = false }: { story: Story; isActive?: boole
 export default function CarouselCards() {
   const trackRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [dragConstraint, setDragConstraint] = useState(0);
+  const viewportRef = useRef<HTMLDivElement>(null);
   const [activeVideo, setActiveVideo] = useState<number | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  // measurements for precise centering and stepping
+  const [step, setStep] = useState(0); // distance between consecutive cards
+  const [cardWidth, setCardWidth] = useState(0);
+  const [containerWidth, setContainerWidth] = useState(0);
+  const [x, setX] = useState(0); // animated x offset for the track
+  const leftBtnRef = useRef<HTMLButtonElement>(null);
+  const rightBtnRef = useRef<HTMLButtonElement>(null);
+  const [innerLeft, setInnerLeft] = useState(0); // left boundary after left button
+  const [innerWidth, setInnerWidth] = useState(0); // width between buttons' inner edges
+
+  // Measure sizes to compute step and centering
+  const measure = () => {
+    if (!viewportRef.current || !trackRef.current) return;
+    const cW = viewportRef.current.clientWidth;
+    const items = trackRef.current.children;
+    if (!items || items.length === 0) return;
+    const firstEl = items[0] as HTMLElement;
+    const cw = firstEl.offsetWidth;
+    let s = cw;
+    if (items.length >= 2) {
+      const secondEl = items[1] as HTMLElement;
+      // offsetLeft is relative to track and not affected by transform, safe to use
+      s = secondEl.offsetLeft - firstEl.offsetLeft;
+    }
+    // Measure inner viewport between buttons (relative to viewport container)
+    const viewportRect = viewportRef.current.getBoundingClientRect();
+    const leftRect = leftBtnRef.current?.getBoundingClientRect();
+    const rightRect = rightBtnRef.current?.getBoundingClientRect();
+    let leftInner = 0;
+    let rightInnerCoord = cW; // coordinate from viewport's left
+    if (leftRect) leftInner = Math.max(0, leftRect.right - viewportRect.left);
+    if (rightRect) rightInnerCoord = Math.max(0, rightRect.left - viewportRect.left);
+    let iWidth = Math.max(0, rightInnerCoord - leftInner);
+    if (iWidth === 0 || iWidth > cW) {
+      // fallback to full container width if measurements unavailable
+      leftInner = 0;
+      iWidth = cW;
+    }
+    setContainerWidth(cW);
+    setCardWidth(cw);
+    setStep(s);
+    setInnerLeft(leftInner);
+    setInnerWidth(iWidth);
+    // recenter to current index
+    const centerX = leftInner + (iWidth - cw) / 2;
+    setX(centerX - currentIndex * s);
+  };
 
   useEffect(() => {
-    const calculateConstraints = () => {
-      if (containerRef.current && trackRef.current) {
-        const containerWidth = containerRef.current.offsetWidth;
-        const trackWidth = trackRef.current.scrollWidth;
-        // Calculate proper constraint to allow full scrolling
-        const constraint = containerWidth - trackWidth;
-        setDragConstraint(constraint);
-      }
-    };
-
-    calculateConstraints();
-    window.addEventListener("resize", calculateConstraints);
-
-    return () => window.removeEventListener("resize", calculateConstraints);
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle video play on hover
@@ -121,13 +163,28 @@ export default function CarouselCards() {
     setActiveVideo(storyId);
   };
 
-  // Navigation functions
+  // Compute and animate to a given index, centering the card in view
+  const goToIndex = (index: number) => {
+    const clamped = ((index % storiesData.length) + storiesData.length) % storiesData.length;
+    setCurrentIndex(clamped);
+    setActiveVideo(storiesData[clamped].id);
+    // compute target x
+    const cW = containerWidth || containerRef.current?.clientWidth || 0;
+    const cw = cardWidth || (trackRef.current?.children[0] as HTMLElement | undefined)?.offsetWidth || 288;
+    const s = step || (trackRef.current?.children[1] as HTMLElement | undefined)?.offsetLeft || cw;
+    const iLeft = innerLeft;
+    const iWidth = innerWidth || cW;
+    const centerX = iLeft + (iWidth - cw) / 2;
+    setX(centerX - clamped * s);
+  };
+
+  // Navigation functions - scroll to previous/next card
   const nextCard = () => {
-    setCurrentIndex((prev) => (prev + 1) % storiesData.length);
+    goToIndex(currentIndex + 1);
   };
 
   const prevCard = () => {
-    setCurrentIndex((prev) => (prev - 1 + storiesData.length) % storiesData.length);
+    goToIndex(currentIndex - 1);
   };
 
   // Update active video when current index changes
@@ -135,9 +192,20 @@ export default function CarouselCards() {
     setActiveVideo(storiesData[currentIndex].id);
   }, [currentIndex]);
 
+  // Handle drag end to update current index
+  const handleDragEnd = (event: any, info: { offset: { x: number }; velocity: { x: number } }) => {
+    const threshold = 50;
+    
+    if (info.offset.x < -threshold || info.velocity.x < -500) {
+      nextCard();
+    } else if (info.offset.x > threshold || info.velocity.x > 500) {
+      prevCard();
+    }
+  };
+
   return (
-    <div className="font-sans w-full py-8 sm:py-12 md:py-20 flex flex-col items-center justify-center">
-      <div className="w-full max-w-7xl mx-auto px-4">
+    <div className="font-sans w-full py-8 sm:py-12 md:py-20 flex flex-col items-center justify-center px-4">
+      <div className="w-full max-w-7xl mx-auto">
         <header className="text-center mb-8 sm:mb-12">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-black dark:text-white">
             Explore Worlds
@@ -147,11 +215,12 @@ export default function CarouselCards() {
           </p>
         </header>
 
-        <div className="relative">
-          {/* Navigation Buttons */}
+        <div className="relative w-full" ref={containerRef}>
+          {/* Navigation Buttons - FIXED: Made buttons functional */}
           <button
             onClick={prevCard}
-            className="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 z-30 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200"
+            ref={leftBtnRef}
+            className="absolute left-0 sm:left-2 top-1/2 -translate-y-1/2 z-30 bg-white/80 hover:bg-white backdrop-blur-sm rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200"
             aria-label="Previous card"
           >
             <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -161,7 +230,8 @@ export default function CarouselCards() {
 
           <button
             onClick={nextCard}
-            className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 z-30 bg-white/90 hover:bg-white backdrop-blur-sm rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200"
+            ref={rightBtnRef}
+            className="absolute right-0 sm:right-2 top-1/2 -translate-y-1/2 z-30 bg-white/80 hover:bg-white backdrop-blur-sm rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200"
             aria-label="Next card"
           >
             <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -170,30 +240,17 @@ export default function CarouselCards() {
           </button>
 
           <div 
-            ref={containerRef}
-            className="overflow-hidden cursor-grab relative mx-10 sm:mx-12"
+            ref={viewportRef}
+            className="overflow-x-hidden relative mx-4 sm:mx-8 md:mx-16 pt-4 sm:pt-6"
           >
             <motion.div
               ref={trackRef}
-              className="flex space-x-4 sm:space-x-6 pb-6"
+              className="flex space-x-4 sm:space-x-6 pb-6 items-stretch cursor-grab"
               drag="x"
-              dragConstraints={{
-                right: 0,
-                left: dragConstraint,
-              }}
               dragElastic={0.1}
-              onDragEnd={(event, info) => {
-                // Simple swipe detection
-                if (info.offset.x < -50) {
-                  nextCard();
-                } else if (info.offset.x > 50) {
-                  prevCard();
-                }
-              }}
-              style={{ 
-                paddingLeft: 'calc(50% - 8rem)',
-                paddingRight: 'calc(50% - 8rem)'
-              }}
+              onDragEnd={handleDragEnd}
+              animate={{ x }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
               whileTap={{ cursor: "grabbing" }}
             >
               {storiesData.map((story, index) => (
@@ -203,7 +260,9 @@ export default function CarouselCards() {
                   onMouseLeave={() => handleCardHover(null)}
                   onTouchStart={() => handleCardHover(story.id)}
                   onTouchEnd={() => handleCardHover(null)}
-                  onClick={() => setCurrentIndex(index)}
+                  onClick={() => {
+                    goToIndex(index);
+                  }}
                   className="flex justify-center cursor-pointer"
                 >
                   <StoryCard 
@@ -214,9 +273,7 @@ export default function CarouselCards() {
               ))}
             </motion.div>
 
-            {/* Gradient overlays to indicate more content */}
-            <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white dark:from-gray-900 to-transparent pointer-events-none"></div>
-            <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white dark:from-gray-900 to-transparent pointer-events-none"></div>
+            {/* Side gradients removed per request */}
           </div>
         </div>
 
@@ -225,7 +282,9 @@ export default function CarouselCards() {
           {storiesData.map((_, index) => (
             <button
               key={index}
-              onClick={() => setCurrentIndex(index)}
+              onClick={() => {
+                goToIndex(index);
+              }}
               className={`w-3 h-3 rounded-full transition-all duration-300 ${
                 index === currentIndex 
                   ? 'bg-blue-500 scale-125' 
