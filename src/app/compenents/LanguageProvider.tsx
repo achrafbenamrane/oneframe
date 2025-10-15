@@ -121,6 +121,24 @@ const dict: Dict = {
   videoCard1Title: { en: 'Buy one for your real big car', ar: 'اشترِ واحدًا لسيارتك الكبيرة' },
   videoCard2Title: { en: 'LED Detector Effect', ar: 'تأثير مستشعر LED' },
   videoCard3Title: { en: 'Our Packaging', ar: 'التغليف الخاص بنا' },
+
+  // TabsViewClassic (Product components)
+  productComponentTitle: { en: 'Product Composant', ar: 'مكوّنات المنتوج' },
+  tabLed: { en: 'LED', ar: 'إضاءة LED' },
+  tabFrame: { en: 'Frame', ar: 'برواز خشبي' },
+  tabArtworkBase: { en: 'Artwork Base', ar: 'قاعدة العمل الفني' },
+  tabLedDesc: {
+    en: 'Integrated LED with presence detector: the light turns on automatically when you enter the room for an effortless, welcoming glow.',
+    ar: 'إضاءة LED مع كاشف حركة: تشعل وحدها كي تدخل للغرفة، تعطي إضاءة مرحبة بلا مجهود.'
+  },
+  tabFrameDesc: {
+    en: 'Solid wooden frame for durability and a premium finish — built to protect and showcase your piece beautifully.',
+    ar: 'برواز خشبي صلب، متين وتشطيبة راقية — يحمي العمل ويبينه بشكل جميل.'
+  },
+  tabArtworkDesc: {
+    en: 'High‑quality UV-printed background for crisp color and detail, plus a mini metal card (iron) for an authentic, premium touch.',
+    ar: 'خلفية مطبوعة بتقنية UV بجودة عالية لألوان واضحة وتفاصيل دقيقة، ومعاها ميني كارت من الحديد تعطي لمسة احترافية.'
+  },
 };
 
 interface LanguageContextValue {

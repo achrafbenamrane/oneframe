@@ -1,41 +1,69 @@
 'use client';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lightbulb, Frame as FrameIcon, Palette } from 'lucide-react';
+import Image from 'next/image';
+import { useI18n } from './LanguageProvider';
 
 export default function TabsViewClassic() {
+  const { t } = useI18n();
   const [activeTab, setActiveTab] = useState(1);
   const [isHovering, setIsHovering] = useState<number | null>(null);
 
   const tabs = [
     {
       id: 1,
-      name: 'LED',
-      icon: <Lightbulb className='w-8 h-8' />,
+      name: t('tabLed'),
+      icon: (
+        <Image
+          src="/ProductDetails/Led.png"
+          alt="LED"
+          width={40}
+          height={40}
+          className="w-10 h-10 object-contain"
+        />
+      ),
       color: 'bg-blue-600',
-      content:
-        'Integrated LED with presence detector: the light turns on automatically when you enter the room for an effortless, welcoming glow.',
+      content: t('tabLedDesc'),
     },
     {
       id: 2,
-      name: 'Frame',
-      icon: <FrameIcon className='w-8 h-8' />,
+      name: t('tabFrame'),
+      icon: (
+        <Image
+          src="/ProductDetails/Frame.png"
+          alt="Frame"
+          width={40}
+          height={40}
+          className="w-10 h-10 object-contain"
+        />
+      ),
       color: 'bg-blue-600',
-      content:
-        'Solid wooden frame for durability and a premium finish — built to protect and showcase your piece beautifully.',
+      content: t('tabFrameDesc'),
     },
     {
       id: 3,
-      name: 'Artwork Base',
-      icon: <Palette className='w-8 h-8' />,
+      name: t('tabArtworkBase'),
+      icon: (
+        <Image
+          src="/ProductDetails/Artwork.png"
+          alt="Artwork Base"
+          width={40}
+          height={40}
+          className="w-10 h-10 object-contain"
+        />
+      ),
       color: 'bg-blue-600',
-      content:
-        'High‑quality UV-printed background for crisp color and detail, plus a mini metal card (iron) for an authentic, premium touch.',
+      content: t('tabArtworkDesc'),
     },
   ];
 
   return (
-    <div className='w-full max-w-2xl mx-auto'>
+    <div className='w-full max-w-4xl mx-auto'>
+      <header className="mb-6 sm:mb-8 md:mb-10 text-center">
+        <h2 className="font-extrabold tracking-tight text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-gray-900 dark:text-white">
+          {t('productComponentTitle')}
+        </h2>
+      </header>
       {/* Tabs layout with cards */}
       <div className='grid grid-cols-3 gap-4 mb-8'>
         {tabs.map((tab) => (
