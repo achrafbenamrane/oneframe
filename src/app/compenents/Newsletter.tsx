@@ -1,9 +1,30 @@
 'use client';
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, type Variants } from "framer-motion";
 import { Phone } from "lucide-react";
 import { useI18n } from './LanguageProvider';
+import FingerprintJS from "@fingerprintjs/fingerprintjs";
+
+async function getFingerprint() {
+  const fp = await FingerprintJS.load();
+  const result = await fp.get();
+  return result.visitorId;
+}
+
+async function registerFingerprintOnServer(fingerprint: string) {
+  try {
+    const res = await fetch("/api/thirdParty/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fingerprint }),
+    });
+    return res.ok;
+  } catch (error) {
+    console.error("Failed to register fingerprint", error);
+    return false;
+  }
+}
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -33,6 +54,26 @@ const Newsletter = () => {
   const [phoneError, setPhoneError] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [fingerprint, setFingerprint] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        const fp = await getFingerprint();
+        if (cancelled) return;
+        setFingerprint(fp);
+        await registerFingerprintOnServer(fp);
+      } catch (error) {
+        console.error("Unable to prepare fingerprint", error);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const validatePhoneNumber = (phone: string) => {
     const phoneRegex = /^(0)(5|6|7)[0-9]{8}$/;
@@ -111,27 +152,74 @@ const Newsletter = () => {
             setSubmitStatus('loading');
             setIsSubmitting(true);
 
+            let fingerprintValue = fingerprint;
+            const fingerprintErrorMessage =
+              lang === 'ar'
+                ? 'تعذر التحقق من الجلسة. يرجى إعادة المحاولة.'
+                : 'We could not verify your session. Please try again.';
+
+            if (!fingerprintValue) {
+              try {
+                fingerprintValue = await getFingerprint();
+                setFingerprint(fingerprintValue);
+              } catch (error) {
+                console.error('Unable to generate fingerprint', error);
+                setSubmitStatus('error');
+                setIsSubmitting(false);
+                setPhoneError(fingerprintErrorMessage);
+                return;
+              }
+            }
+
+            if (!fingerprintValue) {
+              setSubmitStatus('error');
+              setIsSubmitting(false);
+              setPhoneError(fingerprintErrorMessage);
+              return;
+            }
+
+            const registerOk = await registerFingerprintOnServer(fingerprintValue);
+            if (!registerOk) {
+              setSubmitStatus('error');
+              setIsSubmitting(false);
+              setPhoneError(fingerprintErrorMessage);
+              return;
+            }
+
             try {
-              const response = await fetch('/api/send', {
+              const response = await fetch('/api/thirdParty', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                  number: phoneNumber
+                  number: phoneNumber,
+                  fingerprint: fingerprintValue,
+                  productId: "newsletter",
                 }),
               });
 
-              const responseData = await response.json();
+              const raw = await response.text();
+              let responseData: Record<string, unknown> = {};
+              if (raw) {
+                try {
+                  responseData = JSON.parse(raw);
+                } catch (parseError) {
+                  console.error('Failed to parse response JSON', parseError, raw);
+                }
+              }
 
               if (!response.ok || !responseData.success) {
                 console.error('API Error:', {
                   status: response.status,
                   statusText: response.statusText,
-                  data: responseData
+                  data: responseData,
                 });
 
-                const errorMessage = responseData.error || `Error ${response.status}: ${response.statusText}`;
+                const errorMessage =
+                  (typeof responseData.error === 'string' && responseData.error) ||
+                  (typeof responseData.message === 'string' && responseData.message) ||
+                  `Error ${response.status}: ${response.statusText}`;
                 throw new Error(errorMessage);
               }
 

@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@fingerprintjs/fingerprintjs": "^4.6.2",
+    "@upstash/redis": "^1.35.6",
     "framer-motion": "^12.23.24",
     "lucide-react": "^0.545.0",
     "next": "15.5.4",
@@ -27,6 +29,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
     "tailwindcss": "^4.1.14",
-    "typescript": "^5"
+    "typescript": "^5",
+    "webpack-obfuscator": "^0.6.2"
   }
 }

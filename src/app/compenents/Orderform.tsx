@@ -3,14 +3,35 @@
 import { useState, useEffect, useMemo } from "react";
 import { useI18n } from "./LanguageProvider";
 import wilayasData from "../data/wilayas.json";
+import FingerprintJS from "@fingerprintjs/fingerprintjs";
+
+async function getFingerprint() {
+  const fp = await FingerprintJS.load();
+  const result = await fp.get();
+  return result.visitorId; // هذا هو fingerprint الفريد
+}
+
+async function registerFingerprintOnServer(fingerprint: string) {
+  try {
+    const res = await fetch("/api/thirdParty/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fingerprint }),
+    });
+    return res.ok;
+  } catch (error) {
+    console.error("Failed to register fingerprint", error);
+    return false;
+  }
+}
 
 // Simple price map in DZD to match the form's currency
 const PRICE_MAP: Record<string, number> = {
-  "van": 6400,
-  "camaro": 6400,
+  van: 6400,
+  camaro: 6400,
   "land rover": 6400,
-  "bike": 6400,
-  "f1": 6400,
+  bike: 6400,
+  f1: 6400,
   "mercedes gtr": 6400,
 };
 
@@ -22,23 +43,39 @@ const WILAYAS = [
     .map((key) => {
       const w = wilayasData[key as keyof typeof wilayasData];
       return { value: key, labelEn: w.en, labelAr: w.ar };
-    })
+    }),
 ];
 
 type Commune = { id: string; en: string; ar: string };
 type Wilaya = { en: string; ar: string; communes: Commune[] };
-const ALL_COMMUNES: Record<string, { value: string; labelEn: string; labelAr: string }[]> = Object.entries(wilayasData).reduce((acc: Record<string, { value: string; labelEn: string; labelAr: string }[]>, [key, w]: [string, Wilaya]) => {
-  acc[key] = [{ value: "", labelEn: "Commune", labelAr: "البلدية" }, ...w.communes.map((c: Commune) => ({ value: c.id, labelEn: c.en, labelAr: c.ar }))];
-  return acc;
-}, {} as Record<string, { value: string; labelEn: string; labelAr: string }[]>);
+const ALL_COMMUNES: Record<
+  string,
+  { value: string; labelEn: string; labelAr: string }[]
+> = Object.entries(wilayasData).reduce(
+  (
+    acc: Record<string, { value: string; labelEn: string; labelAr: string }[]>,
+    [key, w]: [string, Wilaya]
+  ) => {
+    acc[key] = [
+      { value: "", labelEn: "Commune", labelAr: "البلدية" },
+      ...w.communes.map((c: Commune) => ({
+        value: c.id,
+        labelEn: c.en,
+        labelAr: c.ar,
+      })),
+    ];
+    return acc;
+  },
+  {} as Record<string, { value: string; labelEn: string; labelAr: string }[]>
+);
 
 const VEHICLES = [
-  { value: 'van', labelEn: 'Van', labelAr: 'فان' },
-  { value: 'camaro', labelEn: 'Camaro', labelAr: 'كامارو' },
-  { value: 'land rover', labelEn: 'Land Rover', labelAr: 'لاند روفر' },
-  { value: 'bike', labelEn: 'Bike', labelAr: 'دراجة' },
-  { value: 'f1', labelEn: 'F1', labelAr: 'اف 1' },
-  { value: 'mercedes gtr', labelEn: 'Mercedes GTR', labelAr: 'مرسيدس GTR' },
+  { value: "van", labelEn: "Van", labelAr: "فان" },
+  { value: "camaro", labelEn: "Camaro", labelAr: "كامارو" },
+  { value: "land rover", labelEn: "Land Rover", labelAr: "لاند روفر" },
+  { value: "bike", labelEn: "Bike", labelAr: "دراجة" },
+  { value: "f1", labelEn: "F1", labelAr: "اف 1" },
+  { value: "mercedes gtr", labelEn: "Mercedes GTR", labelAr: "مرسيدس GTR" },
 ];
 
 function formatDA(amount: number | null, lang: "en" | "ar") {
@@ -51,42 +88,80 @@ function formatDA(amount: number | null, lang: "en" | "ar") {
   return `${formatted}${suffix}`;
 }
 
-export default function OrderForm({ defaultProductId }: { defaultProductId?: string }) {
+export default function OrderForm({
+  defaultProductId,
+}: {
+  defaultProductId?: string;
+}) {
   const { t, lang } = useI18n();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(defaultProductId || "");
-  const [phoneError, setPhoneError] = useState<string>('');
+  const [selectedProduct, setSelectedProduct] = useState(
+    defaultProductId || ""
+  );
+  const [phoneError, setPhoneError] = useState<string>("");
 
   // New fields per the reference design
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [wilaya, setWilaya] = useState("");
   const [commune, setCommune] = useState("");
+  const [fingerprint, setFingerprint] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        const fp = await getFingerprint();
+        if (cancelled) return;
+        setFingerprint(fp);
+        await registerFingerprintOnServer(fp);
+      } catch (error) {
+        console.error("Unable to prepare fingerprint", error);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Phone number validation
   const validatePhoneNumber = (phone: string) => {
     const phoneRegex = /^(0)(5|6|7)[0-9]{8}$/;
     if (!phone) {
-      return lang === 'ar' ? 'رقم الهاتف مطلوب' : 'Phone number is required';
+      return lang === "ar" ? "رقم الهاتف مطلوب" : "Phone number is required";
     }
-    if (!phone.startsWith('0')) {
-      return lang === 'ar' ? 'يجب أن يبدأ رقم الهاتف بـ 0' : 'Phone number must start with 0';
+    if (!phone.startsWith("0")) {
+      return lang === "ar"
+        ? "يجب أن يبدأ رقم الهاتف بـ 0"
+        : "Phone number must start with 0";
     }
     if (!/^0[567]/.test(phone)) {
-      return lang === 'ar' ? 'يجب أن يكون الرقم الثاني 5 أو 6 أو 7' : 'Second digit must be 5, 6, or 7';
+      return lang === "ar"
+        ? "يجب أن يكون الرقم الثاني 5 أو 6 أو 7"
+        : "Second digit must be 5, 6, or 7";
     }
     if (phone.length !== 10) {
-      return lang === 'ar' ? 'يجب أن يتكون رقم الهاتف من 10 أرقام' : 'Phone number must be exactly 10 digits';
+      return lang === "ar"
+        ? "يجب أن يتكون رقم الهاتف من 10 أرقام"
+        : "Phone number must be exactly 10 digits";
     }
     if (!phoneRegex.test(phone)) {
-      return lang === 'ar' ? 'رقم الهاتف غير صالح' : 'Invalid phone number format';
+      return lang === "ar"
+        ? "رقم الهاتف غير صالح"
+        : "Invalid phone number format";
     }
-    return '';
+    return "";
   };
   const communesForWilaya = useMemo(() => {
     if (!wilaya) return [{ value: "", labelEn: "Commune", labelAr: "البلدية" }];
-    return ALL_COMMUNES[wilaya] || [{ value: "", labelEn: "Commune", labelAr: "البلدية" }];
+    return (
+      ALL_COMMUNES[wilaya] || [
+        { value: "", labelEn: "Commune", labelAr: "البلدية" },
+      ]
+    );
   }, [wilaya]);
 
   // Update when defaultProductId changes
@@ -109,7 +184,7 @@ export default function OrderForm({ defaultProductId }: { defaultProductId?: str
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!selectedProduct) {
-      alert(t('selectVehicleFirst'));
+      alert(t("selectVehicleFirst"));
       return;
     }
 
@@ -121,6 +196,31 @@ export default function OrderForm({ defaultProductId }: { defaultProductId?: str
     }
 
     setLoading(true);
+    let fingerprintValue = fingerprint;
+    const fingerprintErrorMessage =
+      lang === "ar"
+        ? "تعذر التحقق من الجلسة. يرجى إعادة المحاولة."
+        : "We could not verify your session. Please try again.";
+
+    if (!fingerprintValue) {
+      try {
+        fingerprintValue = await getFingerprint();
+        setFingerprint(fingerprintValue);
+      } catch (error) {
+        console.error("Unable to generate fingerprint", error);
+        setLoading(false);
+        alert(fingerprintErrorMessage);
+        return;
+      }
+    }
+
+    if (!fingerprintValue) {
+      setLoading(false);
+      alert(fingerprintErrorMessage);
+      return;
+    }
+
+    await registerFingerprintOnServer(fingerprintValue);
 
     const data = {
       productId: selectedProduct,
@@ -131,23 +231,27 @@ export default function OrderForm({ defaultProductId }: { defaultProductId?: str
       productPrice,
       deliveryPrice,
       total,
+      fingerprint: fingerprintValue, // fingerprint الخاص بالجلسة الحالية
     };
 
+    let didSucceed = false;
     try {
-      const res = await fetch("/api/send", {
+      const res = await fetch("/api/thirdParty", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
 
-      setSuccess(res.ok);
+      didSucceed = res.ok;
+      setSuccess(didSucceed);
     } catch (err) {
       console.error("Error sending order:", err);
+      didSucceed = false;
       setSuccess(false);
     }
 
     setLoading(false);
-    if (success) {
+    if (didSucceed) {
       setName("");
       setPhone("");
       setWilaya("");
@@ -157,27 +261,49 @@ export default function OrderForm({ defaultProductId }: { defaultProductId?: str
 
   // Icon blocks (no external libs)
   const IconUser = (
-    <svg viewBox="0 0 24 24" className="w-5 h-5 text-gray-500" fill="currentColor" aria-hidden>
-      <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5zm0 2c-3.86 0-7 3.14-7 7h2a5 5 0 0 1 10 0h2c0-3.86-3.14-7-7-7z"/>
+    <svg
+      viewBox="0 0 24 24"
+      className="w-5 h-5 text-gray-500"
+      fill="currentColor"
+      aria-hidden
+    >
+      <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5zm0 2c-3.86 0-7 3.14-7 7h2a5 5 0 0 1 10 0h2c0-3.86-3.14-7-7-7z" />
     </svg>
   );
   const IconPhone = (
-    <svg viewBox="0 0 24 24" className="w-5 h-5 text-gray-500" fill="currentColor" aria-hidden>
-      <path d="M6.62 10.79a15.463 15.463 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V21a1 1 0 0 1-1 1C10.4 22 2 13.6 2 3a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.46.57 3.58a1 1 0 0 1-.24 1.01l-2.2 2.2z"/>
+    <svg
+      viewBox="0 0 24 24"
+      className="w-5 h-5 text-gray-500"
+      fill="currentColor"
+      aria-hidden
+    >
+      <path d="M6.62 10.79a15.463 15.463 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 0 1 1 1V21a1 1 0 0 1-1 1C10.4 22 2 13.6 2 3a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.46.57 3.58a1 1 0 0 1-.24 1.01l-2.2 2.2z" />
     </svg>
   );
   const IconChevron = (
-    <svg viewBox="0 0 20 20" className="w-5 h-5 text-gray-600" fill="currentColor" aria-hidden>
-      <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.939l3.71-3.71a.75.75 0 1 1 1.06 1.061l-4.24 4.24a.75.75 0 0 1-1.06 0L5.25 8.29a.75.75 0 0 1-.02-1.06z" clipRule="evenodd"/>
+    <svg
+      viewBox="0 0 20 20"
+      className="w-5 h-5 text-gray-600"
+      fill="currentColor"
+      aria-hidden
+    >
+      <path
+        fillRule="evenodd"
+        d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 10.939l3.71-3.71a.75.75 0 1 1 1.06 1.061l-4.24 4.24a.75.75 0 0 1-1.06 0L5.25 8.29a.75.75 0 0 1-.02-1.06z"
+        clipRule="evenodd"
+      />
     </svg>
   );
 
   // Direction helpers
   const isRTL = lang === "ar";
-  const labelClass = "text-base font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-1 mb-2";
+  const labelClass =
+    "text-base font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-1 mb-2";
   const asterisk = <span className="text-red-500">*</span>;
-  const fieldWrapper = "w-full bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-2xl flex items-center overflow-hidden";
-  const inputBase = "w-full bg-transparent outline-none text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 text-base py-3 px-4";
+  const fieldWrapper =
+    "w-full bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-2xl flex items-center overflow-hidden";
+  const inputBase =
+    "w-full bg-transparent outline-none text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 text-base py-3 px-4";
 
   // Hidden select for product id (selected via carousel), keep for POST
   const HiddenProductField = (
@@ -187,28 +313,37 @@ export default function OrderForm({ defaultProductId }: { defaultProductId?: str
   return (
     <div className="flex flex-col items-center w-full">
       <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-6 text-center">
-        {t('formHeader')}
+        {t("formHeader")}
       </h2>
 
-      <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 p-4 sm:p-6 rounded-2xl shadow-md w-full max-w-xl">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 p-4 sm:p-6 rounded-2xl shadow-md w-full max-w-xl"
+      >
         {HiddenProductField}
 
         {/* Vehicle (select) */}
-        <label className={`${labelClass} ${isRTL ? 'justify-end' : ''}`}>
-          {t('vehicleLabel')} {asterisk}
+        <label className={`${labelClass} ${isRTL ? "justify-end" : ""}`}>
+          {t("vehicleLabel")} {asterisk}
         </label>
-        <div className={`${fieldWrapper} mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+        <div
+          className={`${fieldWrapper} mb-4 ${isRTL ? "flex-row-reverse" : ""}`}
+        >
           <select
             name="productId"
             value={selectedProduct}
             onChange={(e) => setSelectedProduct(e.target.value)}
             required
-            className={`${inputBase} appearance-none ${isRTL ? 'text-right' : 'text-left'}`}
+            className={`${inputBase} appearance-none ${
+              isRTL ? "text-right" : "text-left"
+            }`}
           >
-            <option value="" disabled>{t('vehiclePlaceholder')}</option>
+            <option value="" disabled>
+              {t("vehiclePlaceholder")}
+            </option>
             {VEHICLES.map((v) => (
               <option key={v.value} value={v.value}>
-                {lang === 'ar' ? v.labelAr : v.labelEn}
+                {lang === "ar" ? v.labelAr : v.labelEn}
               </option>
             ))}
           </select>
@@ -218,17 +353,19 @@ export default function OrderForm({ defaultProductId }: { defaultProductId?: str
         </div>
 
         {/* Name */}
-        <label className={`${labelClass} ${isRTL ? 'justify-end' : ''}`}>
-          {t('nameLabel')} {asterisk}
+        <label className={`${labelClass} ${isRTL ? "justify-end" : ""}`}>
+          {t("nameLabel")} {asterisk}
         </label>
-        <div className={`${fieldWrapper} mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+        <div
+          className={`${fieldWrapper} mb-4 ${isRTL ? "flex-row-reverse" : ""}`}
+        >
           <input
             name="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder={t('namePlaceholder')}
+            placeholder={t("namePlaceholder")}
             required
-            className={`${inputBase} ${isRTL ? 'text-right' : 'text-left'}`}
+            className={`${inputBase} ${isRTL ? "text-right" : "text-left"}`}
           />
           <div className="px-3 py-2 bg-gray-200 dark:bg-gray-700 h-full flex items-center justify-center">
             {IconUser}
@@ -236,54 +373,72 @@ export default function OrderForm({ defaultProductId }: { defaultProductId?: str
         </div>
 
         {/* Phone */}
-        <label className={`${labelClass} ${isRTL ? 'justify-end' : ''}`}>
-          {t('phoneLabel')} {asterisk}
+        <label className={`${labelClass} ${isRTL ? "justify-end" : ""}`}>
+          {t("phoneLabel")} {asterisk}
         </label>
         <div className="flex flex-col w-full">
-          <div className={`${fieldWrapper} ${phoneError ? 'border-red-500' : ''} ${isRTL ? 'flex-row-reverse' : ''}`}>
+          <div
+            className={`${fieldWrapper} ${phoneError ? "border-red-500" : ""} ${
+              isRTL ? "flex-row-reverse" : ""
+            }`}
+          >
             <input
               name="number"
               value={phone}
               onChange={(e) => {
-                const newPhone = e.target.value.replace(/[^0-9]/g, '').slice(0, 10);
+                const newPhone = e.target.value
+                  .replace(/[^0-9]/g, "")
+                  .slice(0, 10);
                 setPhone(newPhone);
                 const error = validatePhoneNumber(newPhone);
                 setPhoneError(error);
               }}
-              placeholder={t('phonePlaceholder')}
+              placeholder={t("phonePlaceholder")}
               required
               type="tel"
               pattern="(0)(5|6|7)[0-9]{8}"
               inputMode="numeric"
-              className={`${inputBase} ${isRTL ? 'text-right' : 'text-left'}`}
-              title={lang === 'ar' ? 'يرجى إدخال رقم هاتف جزائري صحيح (مثال: 0561234567)' : 'Please enter a valid Algerian phone number (e.g., 0561234567)'}
+              className={`${inputBase} ${isRTL ? "text-right" : "text-left"}`}
+              title={
+                lang === "ar"
+                  ? "يرجى إدخال رقم هاتف جزائري صحيح (مثال: 0561234567)"
+                  : "Please enter a valid Algerian phone number (e.g., 0561234567)"
+              }
             />
             <div className="px-3 py-2 bg-gray-200 dark:bg-gray-700 h-full flex items-center justify-center">
               {IconPhone}
             </div>
           </div>
           {phoneError && (
-            <p className={`text-sm text-red-500 mt-1 ${isRTL ? 'text-right' : 'text-left'}`}>
+            <p
+              className={`text-sm text-red-500 mt-1 ${
+                isRTL ? "text-right" : "text-left"
+              }`}
+            >
               {phoneError}
             </p>
           )}
         </div>
 
         {/* Wilaya */}
-        <label className={`${labelClass} ${isRTL ? 'justify-end' : ''}`}>
-          {t('wilayaLabel')} {asterisk}
+        <label className={`${labelClass} ${isRTL ? "justify-end" : ""}`}>
+          {t("wilayaLabel")} {asterisk}
         </label>
-        <div className={`${fieldWrapper} mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+        <div
+          className={`${fieldWrapper} mb-4 ${isRTL ? "flex-row-reverse" : ""}`}
+        >
           <select
             name="wilaya"
             value={wilaya}
             onChange={(e) => setWilaya(e.target.value)}
             required
-            className={`${inputBase} appearance-none ${isRTL ? 'text-right' : 'text-left'}`}
+            className={`${inputBase} appearance-none ${
+              isRTL ? "text-right" : "text-left"
+            }`}
           >
             {WILAYAS.map((w) => (
               <option key={w.value} value={w.value}>
-                {lang === 'ar' ? w.labelAr : w.labelEn}
+                {lang === "ar" ? w.labelAr : w.labelEn}
               </option>
             ))}
           </select>
@@ -293,20 +448,24 @@ export default function OrderForm({ defaultProductId }: { defaultProductId?: str
         </div>
 
         {/* Commune */}
-        <label className={`${labelClass} ${isRTL ? 'justify-end' : ''}`}>
-          {t('communeLabel')} {asterisk}
+        <label className={`${labelClass} ${isRTL ? "justify-end" : ""}`}>
+          {t("communeLabel")} {asterisk}
         </label>
-        <div className={`${fieldWrapper} mb-5 ${isRTL ? 'flex-row-reverse' : ''}`}>
+        <div
+          className={`${fieldWrapper} mb-5 ${isRTL ? "flex-row-reverse" : ""}`}
+        >
           <select
             name="commune"
             value={commune}
             onChange={(e) => setCommune(e.target.value)}
             required
-            className={`${inputBase} appearance-none ${isRTL ? 'text-right' : 'text-left'}`}
+            className={`${inputBase} appearance-none ${
+              isRTL ? "text-right" : "text-left"
+            }`}
           >
             {communesForWilaya.map((c) => (
               <option key={c.value} value={c.value}>
-                {lang === 'ar' ? c.labelAr : c.labelEn}
+                {lang === "ar" ? c.labelAr : c.labelEn}
               </option>
             ))}
           </select>
@@ -317,25 +476,47 @@ export default function OrderForm({ defaultProductId }: { defaultProductId?: str
 
         {/* Price box */}
         <div className="w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 mb-5">
-          <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
-            <span className="text-sm sm:text-base text-gray-700 dark:text-gray-300 font-semibold">{t('productPriceLabel')}</span>
-            <span className="text-sm sm:text-base text-gray-900 dark:text-gray-100">{formatDA(productPrice, lang)}</span>
+          <div
+            className={`flex items-center justify-between ${
+              isRTL ? "flex-row-reverse" : ""
+            }`}
+          >
+            <span className="text-sm sm:text-base text-gray-700 dark:text-gray-300 font-semibold">
+              {t("productPriceLabel")}
+            </span>
+            <span className="text-sm sm:text-base text-gray-900 dark:text-gray-100">
+              {formatDA(productPrice, lang)}
+            </span>
           </div>
-          <div className={`flex items-center justify-between mt-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
-            <span className="text-sm sm:text-base text-gray-700 dark:text-gray-300 font-semibold">{t('deliveryPriceLabel')}</span>
+          <div
+            className={`flex items-center justify-between mt-2 ${
+              isRTL ? "flex-row-reverse" : ""
+            }`}
+          >
+            <span className="text-sm sm:text-base text-gray-700 dark:text-gray-300 font-semibold">
+              {t("deliveryPriceLabel")}
+            </span>
             <span className="flex items-center gap-2 text-sm sm:text-base text-gray-900 dark:text-gray-100">
               {formatDA(deliveryPrice, lang)}
               {deliveryPrice === 0 && (
                 <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300 text-xs sm:text-sm font-semibold">
-                  {t('freeDeliveryBadge')}
+                  {t("freeDeliveryBadge")}
                 </span>
               )}
             </span>
           </div>
           <div className="my-3 h-px bg-gray-200 dark:bg-gray-800" />
-          <div className={`flex items-center justify-between ${isRTL ? 'flex-row-reverse' : ''}`}>
-            <span className="text-base sm:text-lg font-extrabold text-gray-900 dark:text-gray-100">{t('totalPriceLabel')}</span>
-            <span className="text-base sm:text-lg font-extrabold text-gray-900 dark:text-gray-100">{formatDA(total, lang)}</span>
+          <div
+            className={`flex items-center justify-between ${
+              isRTL ? "flex-row-reverse" : ""
+            }`}
+          >
+            <span className="text-base sm:text-lg font-extrabold text-gray-900 dark:text-gray-100">
+              {t("totalPriceLabel")}
+            </span>
+            <span className="text-base sm:text-lg font-extrabold text-gray-900 dark:text-gray-100">
+              {formatDA(total, lang)}
+            </span>
           </div>
         </div>
 
@@ -353,15 +534,21 @@ export default function OrderForm({ defaultProductId }: { defaultProductId?: str
           >
             <div
               className="absolute inset-0 shimmer-anim"
-              style={{ background: "conic-gradient(from 0deg, transparent 25%, #06b6d4, transparent 50%)", pointerEvents: "none" }}
+              style={{
+                background:
+                  "conic-gradient(from 0deg, transparent 25%, #06b6d4, transparent 50%)",
+                pointerEvents: "none",
+              }}
             />
             <span className="relative z-10 inline-flex items-center justify-center w-full h-full px-8 py-3 text-gray-900 dark:text-white bg-white dark:bg-gray-900 rounded-full group-hover:bg-gray-100 dark:group-hover:bg-gray-800 transition-colors duration-300">
-              {loading ? t('sending') : t('confirmOrder')}
+              {loading ? t("sending") : t("confirmOrder")}
             </span>
           </button>
         </div>
         {success && (
-          <p className="text-green-600 dark:text-green-400 mt-3 text-center">✅ {t('orderSentSuccess')}</p>
+          <p className="text-green-600 dark:text-green-400 mt-3 text-center">
+            ✅ {t("orderSentSuccess")}
+          </p>
         )}
       </form>
     </div>

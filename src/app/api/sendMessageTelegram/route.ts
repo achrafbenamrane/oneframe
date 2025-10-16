@@ -1,4 +1,4 @@
-import wilayasData from '../../data/wilayas.json';
+import wilayasData from "../../data/wilayas.json";
 
 interface Wilaya {
   en: string;
@@ -20,32 +20,47 @@ export async function POST(req: Request) {
     // Validate environment variables
     const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
     const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+    const FORM_SECRET_KEY = process.env.X_API_SECRET;
+
+    const headerKey = req.headers.get("x-secret-key");
+    if (headerKey !== FORM_SECRET_KEY) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Unauthorized" }),
+        { status: 403, headers: { "Content-Type": "application/json" } }
+      );
+    }
 
     if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
-      console.error('Missing environment variables:', { 
-        hasBotToken: !!TELEGRAM_BOT_TOKEN, 
-        hasChatId: !!TELEGRAM_CHAT_ID 
+      console.error("Missing environment variables:", {
+        hasBotToken: !!TELEGRAM_BOT_TOKEN,
+        hasChatId: !!TELEGRAM_CHAT_ID,
       });
       return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: 'Configuration error' 
-        }), 
-        { 
+        JSON.stringify({
+          success: false,
+          error: "Configuration error",
+        }),
+        {
           status: 500,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { "Content-Type": "application/json" },
         }
       );
     }
 
     // Parse and validate request body
     const body = await req.json();
-    const { productId, name, wilaya: wilayaId, commune: communeId, number } = body;
+    const {
+      productId,
+      name,
+      wilaya: wilayaId,
+      commune: communeId,
+      number,
+    } = body;
 
     // Get wilaya and commune names
-    let wilayaName = '-';
-    let communeName = '-';
-    
+    let wilayaName = "-";
+    let communeName = "-";
+
     const typedWilayasData = wilayasData as WilayasData;
     if (wilayaId && typedWilayasData[wilayaId]) {
       wilayaName = typedWilayasData[wilayaId].ar; // Using Arabic names
@@ -55,15 +70,16 @@ export async function POST(req: Request) {
       if (selectedCommune) {
         communeName = selectedCommune.ar; // Using Arabic names
       }
-    }    if (!number) {
+    }
+    if (!number) {
       return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: 'Phone number is required' 
-        }), 
-        { 
+        JSON.stringify({
+          success: false,
+          error: "Phone number is required",
+        }),
+        {
           status: 400,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { "Content-Type": "application/json" },
         }
       );
     }
@@ -74,10 +90,10 @@ export async function POST(req: Request) {
       // This is a full order
       text = `📩 *New Order Received!*
 
-🆔 Product ID: ${productId || '-'}
-👤 Name: ${name || '-'}
+🆔 Product ID: ${productId || "-"}
+👤 Name: ${name || "-"}
 📍 Location: ${wilayaName}, ${communeName}
-📱 Phone: ${number || '-'}`;
+📱 Phone: ${number || "-"}`;
     } else {
       // This is a newsletter subscription
       text = `🎨 New 3D Frame Request
@@ -104,40 +120,40 @@ export async function POST(req: Request) {
     const telegramData = await telegramResponse.json();
 
     if (!telegramResponse.ok) {
-      console.error('Telegram API error:', telegramData);
+      console.error("Telegram API error:", telegramData);
       return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: 'Failed to send message',
-          details: telegramData
-        }), 
-        { 
+        JSON.stringify({
+          success: false,
+          error: "Failed to send message",
+          details: telegramData,
+        }),
+        {
           status: 500,
-          headers: { 'Content-Type': 'application/json' }
+          headers: { "Content-Type": "application/json" },
         }
       );
     }
 
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         success: true,
-        message: 'Message sent successfully'
-      }), 
+        message: "Message sent successfully",
+      }),
       {
         status: 200,
         headers: { "Content-Type": "application/json" },
       }
     );
   } catch (error) {
-    console.error('API error:', error);
+    console.error("API error:", error);
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
-      }), 
-      { 
+      JSON.stringify({
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      }),
+      {
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { "Content-Type": "application/json" },
       }
     );
   }
