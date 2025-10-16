@@ -74,9 +74,9 @@ export default function TabsViewClassic() {
             onMouseEnter={() => setIsHovering(tab.id)}
             onMouseLeave={() => setIsHovering(null)}
             tabIndex={0}
-            className={`relative overflow-hidden rounded-xl cursor-pointer border transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 ${
+            className={`relative overflow-hidden rounded-xl cursor-pointer border transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 ${
               activeTab === tab.id
-                ? 'bg-blue-600 text-white border-blue-600 shadow-lg'
+                ? 'bg-blue-400 text-white border-blue-400 shadow-lg'
                 : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 shadow'
             }`}
             whileHover={{ y: -5, transition: { duration: 0.2 } }}
