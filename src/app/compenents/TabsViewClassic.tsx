@@ -5,7 +5,8 @@ import Image from 'next/image';
 import { useI18n } from './LanguageProvider';
 
 export default function TabsViewClassic() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+  const isRTL = lang === 'ar';
   const [activeTab, setActiveTab] = useState(1);
   const [isHovering, setIsHovering] = useState<number | null>(null);
 
@@ -130,7 +131,7 @@ export default function TabsViewClassic() {
           transition={{ duration: 0.3 }}
           className='relative overflow-hidden rounded-xl p-6 bg-white dark:bg-gray-900 shadow-lg border-t-4 border-blue-600 dark:border-blue-500'
         >
-          <div className='absolute top-0 right-0 p-2 flex items-center justify-center'>
+          <div className={`absolute top-0 ${isRTL ? 'left-0' : 'right-0'} p-2 flex items-center justify-center`}>
             <motion.div
               className='text-2xl opacity-50'
               animate={{
@@ -148,12 +149,14 @@ export default function TabsViewClassic() {
             </motion.div>
           </div>
 
-          <h3 className='text-xl font-bold mb-4 text-gray-900 dark:text-white'>
+          <h3 className={`text-xl font-bold mb-4 text-gray-900 dark:text-white ${isRTL ? 'text-right' : 'text-left'}`}>
             {tabs.find((t) => t.id === activeTab)?.name}
           </h3>
 
-          <div className='prose dark:prose-invert'>
-            <p>{tabs.find((t) => t.id === activeTab)?.content}</p>
+          <div className={`prose dark:prose-invert max-w-none ${isRTL ? 'text-right' : 'text-left'}`}>
+            <p className={`${isRTL ? 'leading-relaxed' : ''}`}>
+              {tabs.find((t) => t.id === activeTab)?.content}
+            </p>
           </div>
 
           

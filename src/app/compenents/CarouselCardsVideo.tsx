@@ -31,7 +31,7 @@ const storiesData: Story[] = [
 ];
 
 const StoryCard = ({ story, isActive = false }: { story: Story; isActive?: boolean }) => {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -89,11 +89,13 @@ const StoryCard = ({ story, isActive = false }: { story: Story; isActive?: boole
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent rounded-2xl"></div>
       {/* Subtle inner border to blend with background */}
       <div className="absolute inset-0 rounded-2xl ring-1 ring-white/20 dark:ring-gray-900/20 pointer-events-none" />
-    <div className="relative z-10 flex flex-col justify-end h-full p-4 sm:p-6 text-white">
-  <h3 className="font-bold text-xl sm:text-2xl tracking-wide">{t(story.title)}</h3>
+      <div className="relative z-10 flex flex-col justify-end h-full p-4 sm:p-6 text-white">
+        <h3 className={`font-bold text-xl sm:text-2xl tracking-wide ${isActive ? 'animate-pulse' : ''}`}>
+          {t(story.title)}
+        </h3>
         {/* Video play indicator */}
-        <div className="flex items-center mt-2 text-xs sm:text-sm opacity-80">
-          <div className={`w-2 h-2 rounded-full mr-2 ${isActive ? 'bg-green-400 animate-pulse' : 'bg-gray-400'}`}></div>
+        <div className={`flex items-center mt-2 text-xs sm:text-sm opacity-80 ${lang === 'ar' ? 'flex-row-reverse' : ''}`}>
+          <div className={`w-2 h-2 rounded-full ${lang === 'ar' ? 'ml-2' : 'mr-2'} ${isActive ? 'bg-green-400 animate-pulse' : 'bg-gray-400'}`}></div>
           {isActive ? t('playing') : t('hoverToPlay')}
         </div>
       </div>
@@ -102,7 +104,8 @@ const StoryCard = ({ story, isActive = false }: { story: Story; isActive?: boole
 };
 
 export default function CarouselCards() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+  const isRTL = lang === 'ar';
   const trackRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -163,6 +166,16 @@ export default function CarouselCards() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Remeasure when language changes
+  useEffect(() => {
+    // Small delay to allow DOM to update after direction change
+    const timer = setTimeout(() => {
+      measure();
+    }, 100);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lang]);
+
   // Handle video play on hover
   const handleCardHover = (storyId: number | null) => {
     setActiveVideo(storyId);
@@ -204,10 +217,20 @@ export default function CarouselCards() {
   ) => {
     const threshold = 50;
     
-    if (info.offset.x < -threshold || info.velocity.x < -500) {
-      nextCard();
-    } else if (info.offset.x > threshold || info.velocity.x > 500) {
-      prevCard();
+    // In RTL, dragging right means going forward (next), dragging left means going back (prev)
+    // In LTR, dragging left means going forward (next), dragging right means going back (prev)
+    if (isRTL) {
+      if (info.offset.x > threshold || info.velocity.x > 500) {
+        nextCard();
+      } else if (info.offset.x < -threshold || info.velocity.x < -500) {
+        prevCard();
+      }
+    } else {
+      if (info.offset.x < -threshold || info.velocity.x < -500) {
+        nextCard();
+      } else if (info.offset.x > threshold || info.velocity.x > 500) {
+        prevCard();
+      }
     }
   };
 
@@ -224,25 +247,27 @@ export default function CarouselCards() {
         </header>
 
         <div className="relative w-full" ref={containerRef}>
-          {/* Navigation Buttons - FIXED: Made buttons functional */}
+          {/* Navigation Buttons - RTL support */}
+          {/* In RTL: visual left button is "next", visual right button is "prev" */}
+          {/* In LTR: visual left button is "prev", visual right button is "next" */}
           <button
-            onClick={prevCard}
+            onClick={isRTL ? nextCard : prevCard}
             ref={leftBtnRef}
-            className="absolute left-0 sm:left-2 top-1/2 -translate-y-1/2 z-30 bg-white/80 hover:bg-white backdrop-blur-sm rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200"
-            aria-label={t('previousCard')}
+            className="absolute left-0 sm:left-2 top-1/2 -translate-y-1/2 z-30 bg-white/80 hover:bg-white dark:bg-gray-800/80 dark:hover:bg-gray-800 backdrop-blur-sm rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700"
+            aria-label={isRTL ? t('nextCard') : t('previousCard')}
           >
-            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 dark:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
 
           <button
-            onClick={nextCard}
+            onClick={isRTL ? prevCard : nextCard}
             ref={rightBtnRef}
-            className="absolute right-0 sm:right-2 top-1/2 -translate-y-1/2 z-30 bg-white/80 hover:bg-white backdrop-blur-sm rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200"
-            aria-label={t('nextCard')}
+            className="absolute right-0 sm:right-2 top-1/2 -translate-y-1/2 z-30 bg-white/80 hover:bg-white dark:bg-gray-800/80 dark:hover:bg-gray-800 backdrop-blur-sm rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700"
+            aria-label={isRTL ? t('previousCard') : t('nextCard')}
           >
-            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 dark:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>

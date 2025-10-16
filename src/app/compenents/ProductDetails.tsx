@@ -17,6 +17,7 @@ interface ProductDetailsProps {
 
 const ProductDetails: React.FC<ProductDetailsProps> = ({ id, title, price, description, images = [], onBuy, onClose }) => {
   const { t, lang } = useI18n();
+  const isRTL = lang === 'ar';
   const [visible, setVisible] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -49,16 +50,16 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ id, title, price, descr
         <div className="relative h-84 sm:h-96 bg-gray-200 dark:bg-gray-800 flex items-center justify-center group">
           {images && images.length > 0 && images[currentIndex] ? (
             <div className="relative w-full h-full flex items-center justify-center">
-              {/* Left arrow - only show on hover (desktop) or always on mobile */}
+              {/* Left arrow - RTL support */}
               {images.length > 1 && (
                 <button
-                  className="absolute left-2 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-900 rounded-full p-2 sm:p-3 shadow text-2xl sm:text-3xl opacity-80 hover:opacity-100 transition group-hover:opacity-100 focus:opacity-100"
+                  className={`absolute ${isRTL ? 'right-2' : 'left-2'} top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-900 rounded-full p-2 sm:p-3 shadow text-2xl sm:text-3xl opacity-80 hover:opacity-100 transition group-hover:opacity-100 focus:opacity-100`}
                   onClick={showPrev}
                   aria-label={t('previousImage')}
                   type="button"
                   style={{display: 'block'}}
                 >
-                  &#8592;
+                  {isRTL ? '→' : '←'}
                 </button>
               )}
               <Image 
@@ -75,16 +76,16 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ id, title, price, descr
                   target.style.display = 'none';
                 }}
               />
-              {/* Right arrow - only show on hover (desktop) or always on mobile */}
+              {/* Right arrow - RTL support */}
               {images.length > 1 && (
                 <button
-                  className="absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-900 rounded-full p-2 sm:p-3 shadow text-2xl sm:text-3xl opacity-80 hover:opacity-100 transition group-hover:opacity-100 focus:opacity-100"
+                  className={`absolute ${isRTL ? 'left-2' : 'right-2'} top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-900 rounded-full p-2 sm:p-3 shadow text-2xl sm:text-3xl opacity-80 hover:opacity-100 transition group-hover:opacity-100 focus:opacity-100`}
                   onClick={showNext}
                   aria-label={t('nextImage')}
                   type="button"
                   style={{display: 'block'}}
                 >
-                  &#8594;
+                  {isRTL ? '←' : '→'}
                 </button>
               )}
             </div>
@@ -95,15 +96,15 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ id, title, price, descr
             </div>
           )}
 
-          {/* Top-left badge */}
-          <div className="absolute top-3 left-3 z-10">
+          {/* Top-left badge - RTL support */}
+          <div className={`absolute top-3 ${isRTL ? 'right-3' : 'left-3'} z-10`}>
             <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-black/60 text-white backdrop-blur">
               {t('bestSeller')}
             </span>
           </div>
 
-          {/* Top-right close button */}
-          <div className="absolute top-3 right-3 z-10">
+          {/* Top-right close button - RTL support */}
+          <div className={`absolute top-3 ${isRTL ? 'left-3' : 'right-3'} z-10`}>
             <button
               type="button"
               aria-label={t('close')}
@@ -128,8 +129,8 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ id, title, price, descr
         </div>
 
         {/* Content */}
-        <div className="p-4 sm:p-5">
-          <div className="flex items-start justify-between gap-3">
+        <div className={`p-4 sm:p-5 ${isRTL ? 'text-right' : 'text-left'}`}>
+          <div className={`flex items-start justify-between gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
             <div>
               <h3 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100">{title}</h3>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('ownIt')}</p>
@@ -137,12 +138,12 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ id, title, price, descr
             <span className="sr-only">Product ID: {id}</span>
           </div>
 
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+          <p className={`mt-2 text-sm text-gray-600 dark:text-gray-300 ${isRTL ? 'leading-loose' : 'leading-relaxed'}`}>
             {description}
           </p>
 
-          <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div className="flex items-center gap-2">
+          <div className={`mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 ${isRTL ? 'sm:flex-row-reverse' : ''}`}>
+            <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
               <span className="px-3 py-1.5 rounded-full bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300 text-sm font-semibold border border-green-200 dark:border-green-800">
                 {formattedPrice}
               </span>
@@ -152,9 +153,9 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ id, title, price, descr
             </div>
             <button
               onClick={onBuy}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-black text-white hover:bg-gray-900 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 transition-colors shadow"
+              className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-black text-white hover:bg-gray-900 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 transition-colors shadow ${isRTL ? 'flex-row-reverse' : ''}`}
             >
-              {t('buyNow')} <span aria-hidden>↗</span>
+              {t('buyNow')} <span aria-hidden>{isRTL ? '↙' : '↗'}</span>
             </button>
           </div>
         </div>
