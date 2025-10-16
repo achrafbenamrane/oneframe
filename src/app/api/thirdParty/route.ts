@@ -1,5 +1,28 @@
 // /src/app/api/thirdParty/route.ts
-import { trustedFingerprints } from "./middleware";
+import {
+  FINGERPRINT_SESSION_COOKIE,
+  FINGERPRINT_SESSION_TTL_MS,
+  registerFingerprint,
+  trustedFingerprints,
+  validateFingerprintSession,
+} from "./middleware";
+
+function getCookieValue(req: Request, name: string): string | undefined {
+  const cookieHeader = req.headers.get("cookie");
+  if (!cookieHeader) {
+    return undefined;
+  }
+
+  const target = `${encodeURIComponent(name)}=`;
+  const cookiesArray = cookieHeader.split(";");
+  for (const entry of cookiesArray) {
+    const trimmed = entry.trim();
+    if (trimmed.startsWith(target)) {
+      return decodeURIComponent(trimmed.slice(target.length));
+    }
+  }
+  return undefined;
+}
 
 export async function POST(req: Request) {
   try {
@@ -7,6 +30,10 @@ export async function POST(req: Request) {
     // تأكد أن BASE_URL لا ينتهي بشرطة مائلة
     const rawBase = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
     const BASE_URL = rawBase.replace(/\/+$/, ""); // remove trailing slash(es)
+    const additionalOrigins = (process.env.ALLOWED_ORIGINS || "")
+      .split(",")
+      .map((origin) => origin.trim())
+      .filter(Boolean);
 
     if (!API_SECRET || !BASE_URL) {
       console.error("❌ Missing environment variables", { API_SECRET: !!API_SECRET, BASE_URL });
@@ -22,7 +49,7 @@ export async function POST(req: Request) {
     const host = req.headers.get("host") || "";
 
     // عدّل هذه القائمة لتحتوي على النطاقات الفعلية لموقعك (بدون trailing slash)
-    const allowedOrigins = [BASE_URL, "http://localhost:3000", "https://www.oneframe.me/"];
+  const allowedOrigins = [BASE_URL, "http://localhost:3000", "https://www.oneframe.me", ...additionalOrigins];
 
     // دقيق أكثر: نحاول أن نقارن origin.origin وليس startsWith لأنها قد تخدع
     let isAllowed = false;
@@ -57,11 +84,21 @@ export async function POST(req: Request) {
 
     const body = await req.json().catch(() => ({}));
 
-    if (!body?.fingerprint || !trustedFingerprints.has(body.fingerprint)) {
+    const fingerprint = body?.fingerprint;
+  const sessionToken = getCookieValue(req, FINGERPRINT_SESSION_COOKIE);
+    const fingerprintIsTrusted =
+      typeof fingerprint === "string" &&
+      (trustedFingerprints.has(fingerprint) || validateFingerprintSession(fingerprint, sessionToken, FINGERPRINT_SESSION_TTL_MS));
+
+    if (!fingerprintIsTrusted) {
       return new Response(
-        JSON.stringify({ success: false, error: "Go fuck yourself" }),
+        JSON.stringify({ success: false, error: "Unauthorized request" }),
         { status: 403, headers: { "Content-Type": "application/json" } }
       );
+    }
+
+    if (typeof fingerprint === "string" && !trustedFingerprints.has(fingerprint)) {
+      void registerFingerprint(fingerprint);
     }
     // basic validation
     if (!body || !body.number) {

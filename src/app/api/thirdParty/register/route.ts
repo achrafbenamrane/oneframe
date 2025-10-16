@@ -1,4 +1,10 @@
-import { registerFingerprint } from "../middleware";
+import { NextResponse } from "next/server";
+import {
+  FINGERPRINT_SESSION_COOKIE,
+  FINGERPRINT_SESSION_TTL_MS,
+  createFingerprintSessionToken,
+  registerFingerprint,
+} from "../middleware";
 
 function matchOrigin(candidate: string, allowedOrigins: string[]): boolean {
   try {
@@ -33,7 +39,18 @@ export async function POST(req: Request) {
   try {
     const rawBase = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
     const BASE_URL = rawBase.replace(/\/+$/, "");
-    const allowedOrigins = [BASE_URL, "http://localhost:3000", "https://yourdomain.vercel.app"];
+  const host = req.headers.get("host") || "";
+  const hostname = host.split(":").shift() || "";
+    const forwardedProto = req.headers.get("x-forwarded-proto") || "";
+    const proto = forwardedProto.split(",").shift()?.trim().toLowerCase();
+  const isIpAddress = /^\d{1,3}(?:\.\d{1,3}){3}$/.test(hostname);
+  const isLocalEnvironment = hostname === "localhost" || hostname.endsWith(".local") || isIpAddress;
+    const isSecureCookie = !isLocalEnvironment && (proto === "https" || BASE_URL.startsWith("https://"));
+    const additionalOrigins = (process.env.ALLOWED_ORIGINS || "")
+      .split(",")
+      .map((origin) => origin.trim())
+      .filter(Boolean);
+    const allowedOrigins = [BASE_URL, "http://localhost:3000", "https://www.oneframe.me", ...additionalOrigins];
 
     if (!isAllowedRequest(req, allowedOrigins)) {
       console.warn("Fingerprint register blocked", {
@@ -57,12 +74,32 @@ export async function POST(req: Request) {
       );
     }
 
+    const session = createFingerprintSessionToken(fingerprint);
+
+    if (!session) {
+      console.error("Fingerprint session secret missing");
+      return new Response(
+        JSON.stringify({ success: false, error: "Server not configured" }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
     await registerFingerprint(fingerprint);
 
-    return new Response(
-      JSON.stringify({ success: true }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
-    );
+    const response = NextResponse.json({ success: true });
+
+    response.cookies.set({
+      name: FINGERPRINT_SESSION_COOKIE,
+      value: session.token,
+      httpOnly: true,
+      sameSite: "strict",
+      secure: isSecureCookie,
+      maxAge: Math.floor(FINGERPRINT_SESSION_TTL_MS / 1000),
+      expires: session.expiresAt,
+      path: "/",
+    });
+
+    return response;
   } catch (error) {
     console.error("Fingerprint register failed", error);
     return new Response(
