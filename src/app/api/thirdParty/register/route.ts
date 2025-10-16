@@ -39,18 +39,25 @@ export async function POST(req: Request) {
   try {
     const rawBase = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
     const BASE_URL = rawBase.replace(/\/+$/, "");
-  const host = req.headers.get("host") || "";
-  const hostname = host.split(":").shift() || "";
+    const host = req.headers.get("host") || "";
+    const hostname = host.split(":").shift() || "";
     const forwardedProto = req.headers.get("x-forwarded-proto") || "";
     const proto = forwardedProto.split(",").shift()?.trim().toLowerCase();
-  const isIpAddress = /^\d{1,3}(?:\.\d{1,3}){3}$/.test(hostname);
-  const isLocalEnvironment = hostname === "localhost" || hostname.endsWith(".local") || isIpAddress;
+    const isIpAddress = /^\d{1,3}(?:\.\d{1,3}){3}$/.test(hostname);
+    const isLocalEnvironment = hostname === "localhost" || hostname.endsWith(".local") || isIpAddress || hostname === "::1";
     const isSecureCookie = !isLocalEnvironment && (proto === "https" || BASE_URL.startsWith("https://"));
     const additionalOrigins = (process.env.ALLOWED_ORIGINS || "")
       .split(",")
       .map((origin) => origin.trim())
       .filter(Boolean);
-    const allowedOrigins = [BASE_URL, "http://localhost:3000", "https://www.oneframe.me", ...additionalOrigins];
+    const allowedOrigins = [BASE_URL, "http://localhost:3000", "https://www.oneframe.me", "https://oneframe.me", ...additionalOrigins];
+
+    console.log("🔍 Fingerprint register:", {
+      origin: req.headers.get("origin"),
+      referer: req.headers.get("referer"),
+      host,
+      allowedOrigins,
+    });
 
     if (!isAllowedRequest(req, allowedOrigins)) {
       console.warn("Fingerprint register blocked", {

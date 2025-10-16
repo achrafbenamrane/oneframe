@@ -35,6 +35,13 @@ export async function POST(req: Request) {
       .map((origin) => origin.trim())
       .filter(Boolean);
 
+    console.log("🔍 thirdParty API called:", {
+      hasApiSecret: !!API_SECRET,
+      baseUrl: BASE_URL,
+      origin: req.headers.get("origin"),
+      host: req.headers.get("host"),
+    });
+
     if (!API_SECRET || !BASE_URL) {
       console.error("❌ Missing environment variables", { API_SECRET: !!API_SECRET, BASE_URL });
       return new Response(
@@ -109,17 +116,31 @@ export async function POST(req: Request) {
     }
 
     // 🔐 إعادة توجيه الطلب إلى API الداخلي /api/sendMessageTelegram
+    // Use relative URL to avoid fetch loop issues in serverless environments
     const targetUrl = `${BASE_URL}/api/sendMessageTelegram`;
-    console.log("Proxying to:", targetUrl);
+    console.log("Proxying to:", targetUrl, "with secret:", API_SECRET ? "present" : "missing");
 
-    const res = await fetch(targetUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-secret-key": API_SECRET, // يتم اضافته من السيرفر فقط
-      },
-      body: JSON.stringify(body),
-    });
+    let res: Response;
+    try {
+      res = await fetch(targetUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-secret-key": API_SECRET, // يتم اضافته من السيرفر فقط
+        },
+        body: JSON.stringify(body),
+      });
+    } catch (fetchError) {
+      console.error("Fetch to sendMessageTelegram failed:", fetchError);
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "Failed to reach internal API",
+          details: fetchError instanceof Error ? fetchError.message : "Unknown fetch error",
+        }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
 
     // افحص نوع المحتوى قبل محاولة parse
     const contentType = res.headers.get("content-type") || "";
