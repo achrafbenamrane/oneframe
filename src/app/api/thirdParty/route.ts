@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     const host = req.headers.get("host") || "";
 
     // عدّل هذه القائمة لتحتوي على النطاقات الفعلية لموقعك (بدون trailing slash)
-    const allowedOrigins = [BASE_URL, "http://localhost:3000", "https://yourdomain.vercel.app"];
+    const allowedOrigins = [BASE_URL, "http://localhost:3000", "https://www.oneframe.me"];
 
     // دقيق أكثر: نحاول أن نقارن origin.origin وليس startsWith لأنها قد تخدع
     let isAllowed = false;
