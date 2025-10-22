@@ -34,6 +34,9 @@ export default function Home() {
   // Folder names (match the folders created in public/)
   const VEHICLE_FOLDERS = ['van', 'camaro', 'land-rover', 'bike', 'f1', 'mercedes-gtr'] as const;
 
+  // English display names (not translated)
+  const VEHICLE_ENGLISH_NAMES = ['VANLIFE', 'BUMBLEBEE', 'BREZINA', 'BIKELIFE', 'LOTUS', 'REDGTR'] as const;
+
   // Vehicle-specific data with proper names, prices, and images
   const VEHICLE_DATA = [
     { 
@@ -127,11 +130,11 @@ export default function Home() {
           <OrderForm defaultProductId={selectedProductId} />
         </section>
 
-        <DetailsModal open={modalOpen} onClose={closeDetails} title={modalContent ? `${t('details')} - ${t(VEHICLE_DATA[modalContent.index]?.nameKey)}` : t('details')}>
+        <DetailsModal open={modalOpen} onClose={closeDetails} title={modalContent ? `${t('details')} - ${VEHICLE_ENGLISH_NAMES[modalContent.index]}` : t('details')}>
           {modalContent && (
             <ProductDetails
               id={VEHICLE_IDS[modalContent.index]}
-              title={t(VEHICLE_DATA[modalContent.index]?.nameKey) || t('productTitle')}
+              title={VEHICLE_ENGLISH_NAMES[modalContent.index] || t('productTitle')}
               price={VEHICLE_DATA[modalContent.index]?.price || 111}
               description={t(VEHICLE_DATA[modalContent.index]?.descriptionKey) || t('productDescription')}
               images={(() => {

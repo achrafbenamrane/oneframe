@@ -30,6 +30,16 @@ const VEHICLE_NAMES = [
   'mercedesGTR'
 ] as const;
 
+// English display names (not translated)
+const VEHICLE_DISPLAY_NAMES = [
+  'VANLIFE',
+  'BUMBLEBEE',
+  'BREZINA',
+  'BIKELIFE',
+  'LOTUS',
+  'REDGTR'
+];
+
 interface Story {
   id: number;
   imageUrl: string;
@@ -163,11 +173,11 @@ const ThreeDCarousel = ({
 
   const isRTL = lang === 'ar';
 
-  // Convert your images to stories data with proper translated names
+  // Convert your images to stories data with English names (not translated)
   const storiesData: Story[] = images.map((imageUrl, index) => ({
     id: index + 1,
     imageUrl: imageUrl,
-    title: t(VEHICLE_NAMES[index]),
+    title: VEHICLE_DISPLAY_NAMES[index],
   }));
 
   // Calculate indices for previous, active, and next cards
