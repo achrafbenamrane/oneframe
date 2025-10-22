@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import ThemeToggle from './ThemeToggle';
+import CallButton from './CallButton';
 import LanguageToggle from './LanguageToggle';
 
 
@@ -13,9 +13,9 @@ const TopBar: React.FC = () => {
       
 <div className="max-w-5xl mx-auto px-3 sm:px-4 w-full">
         <div className="relative flex items-center justify-center">
-          {/* Left: Theme */}
+          {/* Left: Call Button */}
           <div className="absolute left-0">
-            <ThemeToggle />
+            <CallButton />
           </div>
 
           {/* Center: Logo */}
