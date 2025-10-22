@@ -19,7 +19,7 @@ const LanguageToggle: React.FC = () => {
       {!isAr ? (
         <div className="flex items-center justify-center">
           <span className="text-lg font-bold text-emerald-600 dark:text-emerald-500 font-arabic">
-            ع
+            AR
           </span>
         </div>
       ) : (
